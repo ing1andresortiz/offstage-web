@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="OffStage — Tour Production & Sound Engineering. Lo que nadie ve, todos lo sienten. What no one sees, everyone feels."/>
+<title>OffStage — Engineered For Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --black: #080808;
+  --white: #f5f0eb;
+  --red: #E24B4A;
+  --red-dim: #8a1f1f;
+  --gray: #1a1a1a;
+  --gray2: #2a2a2a;
+  --text-dim: #666;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+a { color: inherit; text-decoration: none; }
+
+/* CURSOR */
+.cursor {
+  width: 10px; height: 10px;
+  background: var(--red);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, width 0.2s, height 0.2s;
+  transform: translate(-50%,-50%);
+}
+.cursor.grow { width: 40px; height: 40px; background: transparent; border: 1.5px solid var(--red); }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 24px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  mix-blend-mode: difference;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 4px;
+  color: var(--white);
+}
+.nav-links {
+  display: flex; gap: 36px;
+  list-style: none;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+.nav-links a { transition: opacity .2s; }
+.nav-links a:hover { opacity: .5; }
+.lang-toggle {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  background: none; border: 1px solid rgba(245,240,235,.3);
+  color: var(--white); padding: 6px 14px; border-radius: 20px;
+  cursor: none; transition: all .2s;
+}
+.lang-toggle:hover { background: var(--white); color: var(--black); }
+
+/* HERO */
+.hero {
+  height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 48px 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(8,8,8,.85) 40%, rgba(8,8,8,.5) 100%),
+              linear-gradient(to top, rgba(8,8,8,.9) 0%, transparent 60%);
+  z-index: 1;
+}
+.hero > *:not(.hero-bg) { position: relative; z-index: 2; }
+.hero-bg {
+  position: absolute; inset: 0;
+  background-image: url('hero_bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-color: #080808;
+}
+.hero-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(226,75,74,.4), transparent);
+  animation: lineFade 4s ease infinite;
+}
+.hero-line:nth-child(1) { left: 33%; animation-delay: 0s; }
+.hero-line:nth-child(2) { left: 66%; animation-delay: 1.5s; }
+@keyframes lineFade { 0%,100%{opacity:0} 50%{opacity:1} }
+
+.hero-tag {
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--red); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero-tag::before {
+  content: ''; width: 32px; height: 1px; background: var(--red);
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(80px, 14vw, 200px);
+  line-height: .88;
+  letter-spacing: -2px;
+  margin-bottom: 40px;
+  position: relative;
+}
+.hero-title .outline {
+  -webkit-text-stroke: 1px rgba(245,240,235,.2);
+  color: transparent;
+}
+.hero-bottom {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px;
+}
+.hero-tagline {
+  font-size: clamp(13px, 2vw, 16px);
+  line-height: 1.6;
+  color: rgba(245,240,235,.6);
+  max-width: 360px;
+}
+.hero-tagline strong { color: var(--white); font-weight: 400; font-style: italic; }
+.cta-btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--red);
+  color: var(--white);
+  padding: 16px 32px;
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500;
+  border: none; cursor: none;
+  transition: all .3s;
+  white-space: nowrap;
+  font-family: var(--font-body);
+}
+.cta-btn:hover { background: var(--white); color: var(--black); }
+.cta-btn svg { transition: transform .3s; }
+.cta-btn:hover svg { transform: translateX(4px); }
+.scroll-hint {
+  position: absolute; bottom: 60px; right: 48px;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-dim);
+  writing-mode: vertical-rl;
+  display: flex; align-items: center; gap: 10px;
+}
+.scroll-hint::after {
+  content: ''; width: 1px; height: 60px;
+  background: linear-gradient(to bottom, var(--red), transparent);
+  animation: scrollLine 2s ease infinite;
+}
+@keyframes scrollLine { 0%{opacity:0;transform:scaleY(0);transform-origin:top} 50%{opacity:1;transform:scaleY(1)} 100%{opacity:0} }
+
+/* MARQUEE */
+.marquee-wrap {
+  border-top: 1px solid var(--gray2);
+  border-bottom: 1px solid var(--gray2);
+  padding: 16px 0;
+  overflow: hidden;
+  background: var(--gray);
+}
+.marquee-track {
+  display: flex; gap: 60px;
+  animation: marquee 20s linear infinite;
+  width: max-content;
+}
+.marquee-track:hover { animation-play-state: paused; }
+@keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.marquee-item {
+  font-family: var(--font-display);
+  font-size: 13px; letter-spacing: 4px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 60px;
+}
+.marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--red); }
+
+/* SECTIONS */
+section { padding: 120px 48px; }
+.section-label {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--red); margin-bottom: 60px;
+  display: flex; align-items: center; gap: 16px;
+}
+.section-label::after { content:''; flex:1; height:1px; background: var(--gray2); }
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: .9;
+  letter-spacing: -1px;
+  margin-bottom: 60px;
+}
+
+/* SERVICES */
+#services { background: var(--black); }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--gray2);
+}
+.service-card {
+  padding: 40px 36px;
+  border-right: 1px solid var(--gray2);
+  position: relative;
+  overflow: hidden;
+  transition: background .3s;
+}
+.service-card::before {
+  content: '';
+  position: absolute; bottom: 0; left: 0;
+  width: 100%; height: 2px;
+  background: var(--red);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .4s ease;
+}
+.service-card:hover { background: var(--gray); }
+.service-card:hover::before { transform: scaleX(1); }
+.service-num {
+  font-family: var(--font-display);
+  font-size: 48px; color: var(--gray2);
+  margin-bottom: 20px; line-height: 1;
+}
+.service-name {
+  font-size: 18px; font-weight: 500;
+  margin-bottom: 12px;
+}
+.service-desc {
+  font-size: 13px; color: var(--text-dim);
+  line-height: 1.7;
+}
+.service-tag {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid var(--red-dim);
+  padding: 4px 12px;
+}
+
+/* ARTISTS */
+#artists { background: var(--gray); }
+.artists-list { display: flex; flex-direction: column; gap: 0; }
+.artist-row {
+  display: flex; align-items: center;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--gray2);
+  gap: 32px;
+  position: relative;
+  overflow: hidden;
+  cursor: none;
+  transition: padding-left .3s ease;
+}
+.artist-row:first-child { border-top: 1px solid var(--gray2); }
+.artist-row:hover { padding-left: 20px; }
+.artist-row::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--red);
+  transform: scaleY(0);
+  transition: transform .3s ease;
+}
+.artist-row:hover::before { transform: scaleY(1); }
+.artist-num { font-family: var(--font-display); font-size: 14px; color: var(--text-dim); width: 30px; }
+.artist-name { font-family: var(--font-display); font-size: clamp(28px, 5vw, 56px); letter-spacing: 1px; flex: 1; }
+.artist-meta { text-align: right; }
+.artist-tour { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+.artist-year { font-size: 11px; color: var(--red); letter-spacing: 1px; margin-top: 4px; }
+.artist-arrow {
+  font-size: 24px; color: var(--text-dim);
+  transition: transform .3s, color .3s;
+}
+.artist-row:hover .artist-arrow { transform: translateX(8px); color: var(--red); }
+
+/* TEAM */
+#team { background: var(--black); }
+.team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.team-photo {
+  aspect-ratio: 3/4;
+  background: var(--gray);
+  position: relative;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.team-photo-placeholder {
+  font-family: var(--font-display);
+  font-size: 80px; color: var(--gray2);
+}
+.team-photo-frame {
+  position: absolute; inset: 12px;
+  border: 1px solid var(--gray2);
+  pointer-events: none;
+}
+.team-photo::before {
+  content: 'ANDRÉS ORTIZ';
+  position: absolute; bottom: 20px; left: 20px;
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 3px;
+  color: var(--red);
+}
+.team-info { padding: 20px 0; }
+.team-name { font-family: var(--font-display); font-size: clamp(40px, 6vw, 72px); line-height: .9; margin-bottom: 8px; }
+.team-role { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); margin-bottom: 32px; }
+.team-bio { font-size: 15px; line-height: 1.8; color: rgba(245,240,235,.65); margin-bottom: 40px; }
+.team-credits {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.credit-item {
+  display: flex; align-items: center; gap: 16px;
+  font-size: 12px; color: var(--text-dim); letter-spacing: 1px;
+}
+.credit-item::before { content:''; width:20px; height:1px; background:var(--red); }
+.credit-item strong { color: var(--white); font-weight: 400; }
+
+/* ABOUT */
+#about {
+  background: var(--red);
+  color: var(--black);
+  padding: 100px 48px;
+}
+#about .section-label { color: var(--black); }
+#about .section-label::after { background: rgba(0,0,0,.2); }
+.about-quote {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 6vw, 80px);
+  line-height: 1;
+  letter-spacing: -1px;
+  max-width: 900px;
+  margin-bottom: 40px;
+}
+.about-sub { font-size: 15px; line-height: 1.7; max-width: 560px; color: rgba(0,0,0,.7); }
+
+/* CONTACT */
+#contact { background: var(--gray); }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+.contact-info { display: flex; flex-direction: column; gap: 32px; }
+.contact-item-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+.contact-item-value { font-size: 16px; font-weight: 400; }
+.contact-item-value a:hover { color: var(--red); }
+.contact-form { display: flex; flex-direction: column; gap: 20px; }
+.form-field { display: flex; flex-direction: column; gap: 8px; }
+.form-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
+.form-input, .form-textarea {
+  background: var(--black);
+  border: 1px solid var(--gray2);
+  color: var(--white);
+  padding: 14px 16px;
+  font-family: var(--font-body);
+  font-size: 14px; font-weight: 300;
+  outline: none;
+  transition: border-color .2s;
+  width: 100%;
+}
+.form-input:focus, .form-textarea:focus { border-color: var(--red); }
+.form-textarea { resize: none; height: 120px; }
+.form-submit {
+  background: var(--red); color: var(--white);
+  border: none; padding: 16px 32px;
+  font-family: var(--font-body);
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500;
+  cursor: none; transition: all .3s; align-self: flex-start;
+}
+.form-submit:hover { background: var(--white); color: var(--black); }
+
+/* FOOTER */
+footer {
+  background: var(--black);
+  border-top: 1px solid var(--gray2);
+  padding: 40px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.footer-logo { font-family: var(--font-display); font-size: 22px; letter-spacing: 4px; }
+.footer-copy { font-size: 11px; color: var(--text-dim); }
+.footer-social { font-size: 11px; letter-spacing: 1px; color: var(--text-dim); }
+.footer-social a { color: var(--red); }
+
+/* LANG HIDDEN */
+[lang-content="es"] { display: none; }
+body.es [lang-content="en"] { display: none; }
+body.es [lang-content="es"] { display: block; }
+body.es span[lang-content="es"] { display: inline; }
+body.es span[lang-content="en"] { display: none; }
+span[lang-content="es"] { display: none; }
+
+/* REVEAL ANIMATIONS */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity .8s ease, transform .8s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  nav { padding: 20px 24px; }
+  .nav-links { display: none; }
+  section { padding: 80px 24px; }
+  .hero { padding: 0 24px 48px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; }
+  .scroll-hint { display: none; }
+  .team-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+  footer { padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">OFFSTAGE</div>
+  <ul class="nav-links">
+    <li><a href="#services"><span lang-content="en">Services</span><span lang-content="es">Servicios</span></a></li>
+    <li><a href="#artists"><span lang-content="en">Artists</span><span lang-content="es">Artistas</span></a></li>
+    <li><a href="#team"><span lang-content="en">Team</span><span lang-content="es">Equipo</span></a></li>
+    <li><a href="#contact"><span lang-content="en">Booking</span><span lang-content="es">Booking</span></a></li>
+  </ul>
+  <button class="lang-toggle" onclick="toggleLang()" id="langBtn">ES</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-bg-overlay"></div>
+  <div class="hero-line"></div>
+  <div class="hero-line"></div>
+
+  <div class="hero-tag">
+    <span lang-content="en">Tour Production · Sound Engineering · Worldwide</span>
+    <span lang-content="es">Producción de Tours · Ingeniería de Sonido · Worldwide</span>
+  </div>
+
+  <h1 class="hero-title">
+    OFF<br><span class="outline">STAGE</span>
+  </h1>
+
+  <div class="hero-bottom">
+    <p class="hero-tagline">
+      <strong lang-content="en">"What no one sees, everyone feels."</strong>
+      <strong lang-content="es">"Lo que nadie ve, todos lo sienten."</strong>
+      <br>
+      <span lang-content="en">World-class FOH engineering and full-service tour production. Spain · Europe · Worldwide.</span>
+      <span lang-content="es">Ingeniería FOH de primer nivel y producción integral de tours. España · Europa · Worldwide.</span>
+    </p>
+    <a href="#contact" class="cta-btn">
+      <span lang-content="en">Book Now</span>
+      <span lang-content="es">Contactar</span>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+  <div class="scroll-hint">Scroll</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">LUAR LA L <div class="marquee-dot"></div></div>
+    <div class="marquee-item">BEELE <div class="marquee-dot"></div></div>
+    <div class="marquee-item">HADES 66 <div class="marquee-dot"></div></div>
+    <div class="marquee-item">EURO TOUR 2026 <div class="marquee-dot"></div></div>
+    <div class="marquee-item">FOH ENGINEERING <div class="marquee-dot"></div></div>
+    <div class="marquee-item">TOUR PRODUCTION <div class="marquee-dot"></div></div>
+    <div class="marquee-item">OFFSTAGE <div class="marquee-dot"></div></div>
+    <div class="marquee-item">WORLDWIDE <div class="marquee-dot"></div></div>
+    <div class="marquee-item">LUAR LA L <div class="marquee-dot"></div></div>
+    <div class="marquee-item">BEELE <div class="marquee-dot"></div></div>
+    <div class="marquee-item">HADES 66 <div class="marquee-dot"></div></div>
+    <div class="marquee-item">EURO TOUR 2026 <div class="marquee-dot"></div></div>
+    <div class="marquee-item">FOH ENGINEERING <div class="marquee-dot"></div></div>
+    <div class="marquee-item">TOUR PRODUCTION <div class="marquee-dot"></div></div>
+    <div class="marquee-item">OFFSTAGE <div class="marquee-dot"></div></div>
+    <div class="marquee-item">WORLDWIDE <div class="marquee-dot"></div></div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-label reveal">
+    <span lang-content="en">What We Do</span>
+    <span lang-content="es">Qué Hacemos</span>
+  </div>
+  <h2 class="section-title reveal">
+    <span lang-content="en">Services</span>
+    <span lang-content="es">Servicios</span>
+  </h2>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01</div>
+      <div class="service-name">FOH Engineering</div>
+      <div class="service-desc">
+        <span lang-content="en">World-class front-of-house mixing. Waves LV1, DiGiCo, d&b, L-Acoustics. Every frequency, every night.</span>
+        <span lang-content="es">Mezcla FOH de primer nivel. Waves LV1, DiGiCo, d&b, L-Acoustics. Cada frecuencia, cada noche.</span>
+      </div>
+      <div class="service-tag">Live Sound</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">02</div>
+      <div class="service-name">
+        <span lang-content="en">Monitor Engineering</span>
+        <span lang-content="es">Ingeniería de Monitores</span>
+      </div>
+      <div class="service-desc">
+        <span lang-content="en">IEM systems, wedges, sidefills. The artist hears exactly what they need to perform at their best.</span>
+        <span lang-content="es">Sistemas IEM, wedges, sidefills. El artista escucha exactamente lo que necesita para dar lo mejor.</span>
+      </div>
+      <div class="service-tag">IEM · Wedges</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">03</div>
+      <div class="service-name">RF Systems</div>
+      <div class="service-desc">
+        <span lang-content="en">Shure Axient Digital. Frequency coordination, zero interference. Professional RF management for any venue.</span>
+        <span lang-content="es">Shure Axient Digital. Coordinación de frecuencias, cero interferencias. Gestión RF profesional.</span>
+      </div>
+      <div class="service-tag">Shure Axient</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">04</div>
+      <div class="service-name">
+        <span lang-content="en">Tour Production</span>
+        <span lang-content="es">Producción de Tour</span>
+      </div>
+      <div class="service-desc">
+        <span lang-content="en">Full technical production. Stage, lighting, video, SFX, pyrotechnics. We handle everything so the artist focuses on the show.</span>
+        <span lang-content="es">Producción técnica integral. Escenario, iluminación, video, SFX, pirotecnia. Nos encargamos de todo.</span>
+      </div>
+      <div class="service-tag">Full Production</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">05</div>
+      <div class="service-name">
+        <span lang-content="en">Logistics & Management</span>
+        <span lang-content="es">Logística y Gestión</span>
+      </div>
+      <div class="service-desc">
+        <span lang-content="en">Tour scheduling, crew management, rider compliance, venue coordination. The invisible infrastructure that makes tours work.</span>
+        <span lang-content="es">Calendario de tours, gestión de equipo, cumplimiento de riders, coordinación de venues.</span>
+      </div>
+      <div class="service-tag">Tour Management</div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">06</div>
+      <div class="service-name">
+        <span lang-content="en">Technical Consulting</span>
+        <span lang-content="es">Consultoría Técnica</span>
+      </div>
+      <div class="service-desc">
+        <span lang-content="en">Rider preparation, counter-rider evaluation, system design, venue assessment. Expert guidance from pre-production to showday.</span>
+        <span lang-content="es">Preparación de riders, evaluación de contra-riders, diseño de sistemas, evaluación de venues.</span>
+      </div>
+      <div class="service-tag">Consulting</div>
+    </div>
+  </div>
+</section>
+
+<!-- ARTISTS -->
+<section id="artists">
+  <div class="section-label reveal">
+    <span lang-content="en">Who We Work With</span>
+    <span lang-content="es">Con Quién Trabajamos</span>
+  </div>
+  <h2 class="section-title reveal">
+    <span lang-content="en">Artists</span>
+    <span lang-content="es">Artistas</span>
+  </h2>
+  <div class="artists-list">
+    <div class="artist-row reveal">
+      <div class="artist-num">01</div>
+      <div class="artist-name">LUAR LA L</div>
+      <div class="artist-meta">
+        <div class="artist-tour">L3TRA TOUR — España · Europa</div>
+        <div class="artist-year">2026</div>
+      </div>
+      <div class="artist-arrow">→</div>
+    </div>
+    <div class="artist-row reveal">
+      <div class="artist-num">02</div>
+      <div class="artist-name">BEELE</div>
+      <div class="artist-meta">
+        <div class="artist-tour">EURO TOUR — España · Portugal · Italia · Suiza</div>
+        <div class="artist-year">2026</div>
+      </div>
+      <div class="artist-arrow">→</div>
+    </div>
+    <div class="artist-row reveal">
+      <div class="artist-num">03</div>
+      <div class="artist-name">HADES 66</div>
+      <div class="artist-meta">
+        <div class="artist-tour">EURO TOUR — España</div>
+        <div class="artist-year">2026</div>
+      </div>
+      <div class="artist-arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="section-label reveal">
+    <span lang-content="en">The People</span>
+    <span lang-content="es">El Equipo</span>
+  </div>
+  <h2 class="section-title reveal">
+    <span lang-content="en">Who We Are</span>
+    <span lang-content="es">Quiénes Somos</span>
+  </h2>
+  <div class="team-grid reveal">
+    <div class="team-photo" style="background:none;padding:0;">
+      <img src="team.jpg" alt="Andrés Ortiz" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"/>
+      <div class="team-photo-frame"></div>
+    </div>
+    <div class="team-info">
+      <div class="team-name">ANDRÉS<br>ORTIZ</div>
+      <div class="team-role">Founder · CEO · FOH Engineer</div>
+      <p class="team-bio">
+        <span lang-content="en">Colombian sound engineer based in Spain. Specialized in FOH engineering for Latin urban and pop artists on European and worldwide tours. With OffStage, the mission is simple: deliver world-class sound and production so every show exceeds expectations — for the artist, the audience, and the promoter.</span>
+        <span lang-content="es">Ingeniero de sonido colombiano basado en España. Especializado en ingeniería FOH para artistas latinos urbanos y pop en tours europeos y worldwide. Con OffStage, la misión es simple: entregar sonido y producción de primer nivel para que cada show supere las expectativas — del artista, el público y la promotora.</span>
+      </p>
+      <div class="team-credits">
+        <div class="credit-item"><strong>Luar La L</strong> — L3TRA Tour Europa 2026</div>
+        <div class="credit-item"><strong>Beele</strong> — Euro Tour 2026</div>
+        <div class="credit-item"><strong>Hades 66</strong> — Euro Tour 2026</div>
+        <div class="credit-item"><strong>Dalex · Almighty · Ovi Oficial</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label reveal">OffStage</div>
+  <div class="about-quote reveal">
+    <span lang-content="en">"What no one sees,<br>everyone feels."</span>
+    <span lang-content="es">"Lo que nadie ve,<br>todos lo sienten."</span>
+  </div>
+  <p class="about-sub reveal">
+    <span lang-content="en">OffStage was born from one belief: the best technical teams are invisible. The audience never thinks about the sound — they just feel it. That's the standard we hold every night, on every stage, in every city.</span>
+    <span lang-content="es">OffStage nació de una convicción: los mejores equipos técnicos son invisibles. El público nunca piensa en el sonido — simplemente lo siente. Ese es el estándar que mantenemos cada noche, en cada escenario, en cada ciudad.</span>
+  </p>
+</section>
+
+
+<!-- GALLERY -->
+<section id="gallery" style="padding:80px 0;background:var(--black);overflow:hidden;">
+  <div style="padding:0 48px;margin-bottom:40px;">
+    <div class="section-label reveal">
+      <span lang-content="en">In Action</span>
+      <span lang-content="es">En Acción</span>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;">
+    <div class="reveal" style="aspect-ratio:2/3;overflow:hidden;">
+      <img src="gallery1.jpg" alt="OffStage" style="width:100%;height:100%;object-fit:cover;transition:transform .6s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+    </div>
+    <div class="reveal" style="aspect-ratio:2/3;overflow:hidden;">
+      <img src="gallery2.jpg" alt="OffStage" style="width:100%;height:100%;object-fit:cover;transition:transform .6s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+    </div>
+    <div class="reveal" style="aspect-ratio:2/3;overflow:hidden;">
+      <img src="gallery3.jpg" alt="OffStage" style="width:100%;height:100%;object-fit:cover;transition:transform .6s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+    </div>
+    <div class="reveal" style="aspect-ratio:2/3;overflow:hidden;">
+      <img src="gallery4.jpg" alt="OffStage" style="width:100%;height:100%;object-fit:cover;transition:transform .6s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+    </div>
+    <div class="reveal" style="aspect-ratio:2/3;overflow:hidden;">
+      <img src="gallery5.jpg" alt="OffStage" style="width:100%;height:100%;object-fit:cover;transition:transform .6s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-label reveal">
+    <span lang-content="en">Let's Work Together</span>
+    <span lang-content="es">Trabajemos Juntos</span>
+  </div>
+  <h2 class="section-title reveal">Booking</h2>
+  <div class="contact-grid">
+    <div class="contact-info reveal">
+      <div>
+        <div class="contact-item-label">Email</div>
+        <div class="contact-item-value"><a href="mailto:andres@weareoffstage.pro">andres@weareoffstage.pro</a></div>
+      </div>
+      <div>
+        <div class="contact-item-label">Instagram</div>
+        <div class="contact-item-value"><a href="https://instagram.com/offstage.pro" target="_blank">@offstage.pro</a></div>
+      </div>
+      <div>
+        <div class="contact-item-label">
+          <span lang-content="en">Based in</span>
+          <span lang-content="es">Base</span>
+        </div>
+        <div class="contact-item-value">España — Worldwide</div>
+      </div>
+      <div>
+        <div class="contact-item-label">
+          <span lang-content="en">Available for</span>
+          <span lang-content="es">Disponible para</span>
+        </div>
+        <div class="contact-item-value">
+          <span lang-content="en">Tours · Festivals · One-off shows</span>
+          <span lang-content="es">Tours · Festivales · Shows puntuales</span>
+        </div>
+      </div>
+    </div>
+    <form class="contact-form reveal" onsubmit="handleSubmit(event)">
+      <div class="form-field">
+        <label class="form-label">
+          <span lang-content="en">Your Name</span>
+          <span lang-content="es">Tu Nombre</span>
+        </label>
+        <input class="form-input" type="text" required placeholder=""/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" required placeholder=""/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">
+          <span lang-content="en">Artist / Project</span>
+          <span lang-content="es">Artista / Proyecto</span>
+        </label>
+        <input class="form-input" type="text" placeholder=""/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">
+          <span lang-content="en">Message</span>
+          <span lang-content="es">Mensaje</span>
+        </label>
+        <textarea class="form-textarea" placeholder=""></textarea>
+      </div>
+      <button type="submit" class="form-submit">
+        <span lang-content="en">Send Message →</span>
+        <span lang-content="es">Enviar Mensaje →</span>
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">OFFSTAGE</div>
+  <div class="footer-copy">© 2026 OffStage. weareoffstage.pro</div>
+  <div class="footer-social">
+    <a href="https://instagram.com/offstage.pro" target="_blank">@offstage.pro</a>
+  </div>
+</footer>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+document.querySelectorAll('a, button, .artist-row, .service-card').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('grow'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('grow'));
+});
+
+// LANGUAGE
+let isES = false;
+function toggleLang() {
+  isES = !isES;
+  document.body.classList.toggle('es', isES);
+  document.getElementById('langBtn').textContent = isES ? 'EN' : 'ES';
+}
+
+// REVEAL ON SCROLL
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
+
+// FORM
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  btn.textContent = isES ? 'Enviado ✓' : 'Sent ✓';
+  btn.style.background = '#16a34a';
+  setTimeout(() => {
+    btn.textContent = isES ? 'Enviar Mensaje →' : 'Send Message →';
+    btn.style.background = '';
+    e.target.reset();
+  }, 3000);
+}
+</script>
+</body>
+</html>
