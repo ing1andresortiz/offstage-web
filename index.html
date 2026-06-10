@@ -172,6 +172,27 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
   footer{padding:24px 20px;}
   .hb{flex-direction:column;align-items:flex-start;}
 }
+
+/* RENTAL */
+.rental{background:#070707;}
+.rental-intro{font-size:14px;line-height:1.85;color:rgba(240,235,228,.45);max-width:560px;margin-bottom:56px;}
+.rental-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#111;}
+.rc{background:#070707;padding:36px 32px;position:relative;overflow:hidden;transition:background .3s;}
+.rc:hover{background:#0d0d0d;}
+.rc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,#E03A38,transparent);transform:scaleX(0);transform-origin:left;transition:transform .5s;}
+.rc:hover::before{transform:scaleX(1);}
+.rc-cat{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:#E03A38;margin-bottom:14px;}
+.rc-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,3.5vw,32px);letter-spacing:.5px;margin-bottom:8px;line-height:.95;}
+.rc-model{font-size:11px;color:#444;margin-bottom:16px;letter-spacing:.5px;}
+.rc-specs{display:flex;flex-direction:column;gap:7px;border-top:1px solid #141414;padding-top:14px;}
+.rc-spec{display:flex;align-items:center;gap:10px;font-size:11px;color:#555;}
+.rc-spec::before{content:'';width:4px;height:4px;border-radius:50%;background:#E03A38;flex-shrink:0;}
+.rc-tag{display:inline-block;margin-top:16px;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#E03A38;border:1px solid #2a1414;padding:4px 10px;}
+.rental-note{background:#0d0d0d;border:1px solid #161616;border-left:2px solid #E03A38;padding:20px 24px;margin-top:20px;display:flex;align-items:flex-start;gap:16px;}
+.rental-note-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.rental-note-text{font-size:12px;line-height:1.8;color:#555;}
+.rental-note-text strong{color:rgba(240,235,228,.7);font-weight:400;display:block;margin-bottom:4px;}
+@media(max-width:768px){.rental-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -182,7 +203,7 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
     <li><a href="#services" id="n1">Services</a></li>
     <li><a href="#artists" id="n2">Artists</a></li>
     <li><a href="#team" id="n3">Team</a></li>
-    <li><a href="#contact">Booking</a></li>
+    <li><a href="#rental" id="n4">Rental</a></li><li><a href="#contact">Booking</a></li>
   </ul>
   <div class="nr">
     <button class="lb" onclick="toggleLang()" id="lbtn">ES</button>
@@ -296,6 +317,104 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
   </div>
 </div>
 
+
+<!-- RENTAL -->
+<section class="rental sp2" id="rental">
+  <div class="slb"><span id="rt0">Equipment Rental</span></div>
+  <div class="sti" id="rt1">Rental</div>
+  <p class="rental-intro" id="rt2">Professional touring gear available for rent. The same equipment we use on world tours — DiGiCo, Waves LV1, Shure Axient Digital. Backline-ready, tour-tested, delivered anywhere in Spain and Europe.</p>
+
+  <div class="rental-grid">
+
+    <div class="rc">
+      <div class="rc-cat">FOH · Monitor Console</div>
+      <div class="rc-name">WAVES<br>LV1</div>
+      <div class="rc-model">Live Mixer · 64 channels</div>
+      <div class="rc-specs">
+        <div class="rc-spec">64 input channels</div>
+        <div class="rc-spec">SoundGrid processing</div>
+        <div class="rc-spec">Full plugin suite included</div>
+        <div class="rc-spec">UPS 2000w backup included</div>
+        <div class="rc-spec">FOH + MON configuration</div>
+      </div>
+      <div class="rc-tag">Available</div>
+    </div>
+
+    <div class="rc">
+      <div class="rc-cat">RF · Wireless Mic System</div>
+      <div class="rc-name">SHURE<br>AXIENT</div>
+      <div class="rc-model">ADX2FD-SM58 · AD4Q Receiver</div>
+      <div class="rc-specs">
+        <div class="rc-spec">2x AD4Q receivers (4ch each)</div>
+        <div class="rc-spec">8x ADX2FD-SM58 wireless</div>
+        <div class="rc-spec">Talkback switch built-in</div>
+        <div class="rc-spec">ShowLink frequency mgmt</div>
+        <div class="rc-spec">Spectrum analysis included</div>
+      </div>
+      <div class="rc-tag">Available</div>
+    </div>
+
+    <div class="rc">
+      <div class="rc-cat">IEM · In-Ear Monitor System</div>
+      <div class="rc-name">SHURE<br>PSM-1000</div>
+      <div class="rc-model">Axient Digital IEM · P10R+</div>
+      <div class="rc-specs">
+        <div class="rc-spec">3x PSM-1000 transmitters</div>
+        <div class="rc-spec">6x P10R+ bodypacks</div>
+        <div class="rc-spec">Stereo / mono configurable</div>
+        <div class="rc-spec">Digital hybrid companding</div>
+        <div class="rc-spec">Cascade antenna included</div>
+      </div>
+      <div class="rc-tag">Available</div>
+    </div>
+
+    <div class="rc">
+      <div class="rc-cat">RF · Antenna Distribution</div>
+      <div class="rc-name">SHURE<br>UA844</div>
+      <div class="rc-model">+SWB · Active Antenna Combiner</div>
+      <div class="rc-specs">
+        <div class="rc-spec">1x UA844+SWB combiner</div>
+        <div class="rc-spec">2x UA874 remote antennas</div>
+        <div class="rc-spec">Wideband coverage</div>
+        <div class="rc-spec">4 output distribution</div>
+      </div>
+      <div class="rc-tag">Available</div>
+    </div>
+
+    <div class="rc">
+      <div class="rc-cat">RF · ShowLink Access</div>
+      <div class="rc-name">SHURE<br>AXT600</div>
+      <div class="rc-model">ShowLink + AD610 Access Point</div>
+      <div class="rc-specs">
+        <div class="rc-spec">Remote frequency control</div>
+        <div class="rc-spec">Real-time RF monitoring</div>
+        <div class="rc-spec">Compatible Axient ecosystem</div>
+        <div class="rc-spec">Network integration</div>
+      </div>
+      <div class="rc-tag">Available</div>
+    </div>
+
+    <div class="rc" style="display:flex;flex-direction:column;justify-content:center;align-items:flex-start;background:#0a0a0a;">
+      <div class="rc-cat">Consulta disponibilidad</div>
+      <div class="rc-name" style="margin-bottom:12px;">CUSTOM<br>PACKAGE</div>
+      <div style="font-size:12px;color:#444;line-height:1.75;margin-bottom:20px;" id="rt3">Need a specific setup? We build custom rental packages for your show requirements.</div>
+      <a href="#contact" style="display:inline-flex;align-items:center;gap:10px;background:#E03A38;color:#f0ebe4;padding:12px 22px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:500;font-family:'DM Sans',sans-serif;">
+        <span id="rt4">Get Quote</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+  </div>
+
+  <div class="rental-note">
+    <div class="rental-note-icon">🚚</div>
+    <div class="rental-note-text">
+      <strong id="rt5">Delivery across Spain and Europe. Setup & technical support available.</strong>
+      <span id="rt6">All equipment is tour-tested and delivered show-ready. Technician deployment available on request. Contact us at least 72h before your event.</span>
+    </div>
+  </div>
+</section>
+
 <section class="mf">
   <div class="mq" id="mq">"What no one sees, everyone feels."</div>
   <p class="mp" id="mp">OffStage was built on one belief: the best technical teams are invisible. The audience never thinks about the sound — they just feel it. That is the standard we hold every night, on every stage, in every city.</p>
@@ -356,6 +475,11 @@ const T={
     us2:'This is what OffStage does. From the FOH position — unseen, focused, in control — we deliver the sound that defines the night.',
     mq:'"What no one sees, everyone feels."',
     mp:'OffStage was built on one belief: the best technical teams are invisible. The audience never thinks about the sound — they just feel it. That is the standard we hold every night, on every stage, in every city.',
+    rt0:'Equipment Rental',rt1:'Rental',
+    rt2:'Professional touring gear available for rent. The same equipment we use on world tours — Waves LV1, Shure Axient Digital. Tour-tested, delivered anywhere in Spain and Europe.',
+    rt3:'Need a specific setup? We build custom rental packages for your show requirements.',
+    rt4:'Get Quote',rt5:'Delivery across Spain and Europe. Setup & technical support available.',
+    rt6:'All equipment is tour-tested and delivered show-ready. Technician deployment available on request. Contact us at least 72h before your event.',
     ct0:"Let's Work Together",ct1:'Based in',ct2:'Available for',ct3:'Tours · Festivals · One-off shows',
     f1:'Your Name',f2:'Artist / Project',f3:'Message',fsb:'Send Message →'
   },
@@ -382,6 +506,11 @@ const T={
     us2:'Esto es lo que hace OffStage. Desde la posición FOH — invisible, concentrado, en control — entregamos el sonido que define la noche.',
     mq:'"Lo que nadie ve, todos lo sienten."',
     mp:'OffStage nació de una convicción: los mejores equipos técnicos son invisibles. El público nunca piensa en el sonido — simplemente lo siente. Ese es el estándar que mantenemos cada noche, en cada escenario, en cada ciudad.',
+    rt0:'Alquiler de Equipo',rt1:'Rental',
+    rt2:'Equipo profesional de touring disponible para alquiler. El mismo equipo que usamos en giras mundiales — Waves LV1, Shure Axient Digital. Probado en tours, disponible en España y Europa.',
+    rt3:'¿Necesitas una configuración específica? Creamos paquetes de rental a medida.',
+    rt4:'Solicitar Presupuesto',rt5:'Envío a toda España y Europa. Soporte técnico disponible.',
+    rt6:'Todo el equipo se entrega listo para el show. Técnico disponible bajo petición. Contáctanos con mínimo 72h de antelación.',
     ct0:'Trabajemos Juntos',ct1:'Base',ct2:'Disponible para',ct3:'Tours · Festivales · Shows puntuales',
     f1:'Tu Nombre',f2:'Artista / Proyecto',f3:'Mensaje',fsb:'Enviar Mensaje →'
   }
