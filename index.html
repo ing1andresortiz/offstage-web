@@ -449,10 +449,11 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
       <div><div class="cl" id="ct2">Available for</div><div class="cv" id="ct3">Tours · Festivals · One-off shows</div></div>
     </div>
     <form class="cf rv" onsubmit="handleForm(event)">
-      <div><label class="fl" id="f1">Your Name</label><input class="fi" type="text" required/></div>
-      <div><label class="fl">Email</label><input class="fi" type="email" required/></div>
-      <div><label class="fl" id="f2">Artist / Project</label><input class="fi" type="text"/></div>
-      <div><label class="fl" id="f3">Message</label><textarea class="ft"></textarea></div>
+      <div><label class="fl" id="f1">Your Name</label><input class="fi" type="text" name="name" required/></div>
+      <div><label class="fl">Email</label><input class="fi" type="email" name="email" required/></div>
+      <div><label class="fl" id="f2">Artist / Project</label><input class="fi" type="text" name="artist"/></div>
+      <div><label class="fl" id="f3">Message</label><textarea class="ft" name="message" required></textarea></div>
+      <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true"/>
       <button type="submit" class="fb" id="fsb">Send Message →</button>
     </form>
   </div>
@@ -610,10 +611,32 @@ window.addEventListener('resize',resize);resize();draw();
 // FORM
 function handleForm(e){
   e.preventDefault();
-  const btn=e.target.querySelector('.fb');
-  btn.textContent=lang==='es'?'Enviado ✓':'Sent ✓';
-  btn.style.background='#16a34a';
-  setTimeout(()=>{btn.textContent=T[lang].fsb;btn.style.background='';e.target.reset();},3000);
+  const form=e.target, btn=form.querySelector('.fb');
+  if(form.querySelector('[name="_honey"]').value) return; // trampa anti-spam: si está lleno, es un bot
+  btn.disabled=true;
+  btn.textContent=lang==='es'?'Enviando…':'Sending…';
+  const data={
+    name: form.querySelector('[name="name"]').value,
+    email: form.querySelector('[name="email"]').value,
+    artist: form.querySelector('[name="artist"]').value,
+    message: form.querySelector('[name="message"]').value,
+    _subject: 'Nuevo booking — weareoffstage.pro',
+    _template: 'table'
+  };
+  fetch('https://formsubmit.co/ajax/andres@weareoffstage.pro',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify(data)
+  }).then(function(r){return r.json();}).then(function(){
+    btn.textContent=lang==='es'?'Enviado ✓':'Sent ✓';
+    btn.style.background='#16a34a';
+    form.reset();
+    setTimeout(function(){btn.textContent=T[lang].fsb;btn.style.background='';btn.disabled=false;},4000);
+  }).catch(function(){
+    btn.textContent=lang==='es'?'Reintenta':'Retry';
+    btn.style.background='#E03A38';
+    setTimeout(function(){btn.textContent=T[lang].fsb;btn.style.background='';btn.disabled=false;},4000);
+  });
 }
 </script>
 </body>
