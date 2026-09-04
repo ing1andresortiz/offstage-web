@@ -157,6 +157,13 @@ canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.4;}
 .gi img{width:100%;height:100%;object-fit:cover;filter:grayscale(20%);transition:transform .7s,filter .4s;}
 .gi:hover img{transform:scale(1.07);filter:grayscale(0%);}
 
+/* REELS */
+.reels-wrap{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;}
+.reels-wrap .instagram-media{margin:0!important;min-width:300px!important;max-width:328px!important;flex:0 1 320px;border:none!important;border-radius:6px!important;box-shadow:0 10px 40px rgba(0,0,0,.5)!important;}
+.reels-follow{display:inline-block;margin-top:40px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#E03A38;border:1px solid #2a1414;padding:11px 20px;transition:background .2s,color .2s;}
+.reels-follow:hover{background:#E03A38;color:#f0ebe4;}
+@media(max-width:768px){.reels-wrap .instagram-media{flex:1 1 100%;max-width:100%!important;}}
+
 /* MANIFESTO */
 .mf{background:#E03A38;padding:100px 40px;}
 .mq{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,7vw,88px);line-height:.92;color:#070707;max-width:800px;margin-bottom:28px;}
@@ -233,6 +240,7 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
   <ul class="nm">
     <li><a href="#services" id="n1">Services</a></li>
     <li><a href="#artists" id="n2">Artists</a></li>
+    <li><a href="#reels">Reels</a></li>
     <li><a href="#team" id="n3">Team</a></li>
     <li><a href="#rental" id="n4">Rental</a></li><li><a href="#contact">Booking</a></li>
   </ul>
@@ -352,6 +360,18 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
   </div>
 </div>
 
+
+<!-- REELS -->
+<section class="sp2" id="reels" style="background:#0f0f0f;">
+  <div class="slb rv"><span id="rl0">Live</span></div>
+  <div class="sti rv">Reels</div>
+  <div class="reels-wrap">
+    <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/Dc2OrK0ts8_/?utm_source=ig_embed" data-instgrm-version="14"><a href="https://www.instagram.com/reel/Dc2OrK0ts8_/" target="_blank" rel="noopener">Ver reel — Movistar Arena</a></blockquote>
+    <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DbtmPWiNAdk/?utm_source=ig_embed" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DbtmPWiNAdk/" target="_blank" rel="noopener">Ver reel — Euro Tour</a></blockquote>
+    <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DaQJBuMNp6b/?utm_source=ig_embed" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DaQJBuMNp6b/" target="_blank" rel="noopener">Ver reel — FOH</a></blockquote>
+  </div>
+  <a href="https://instagram.com/offstage.pro" target="_blank" rel="noopener" class="reels-follow">@offstage.pro →</a>
+</section>
 
 <!-- RENTAL -->
 <section class="rental sp2" id="rental">
@@ -490,6 +510,8 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
   <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M17.6 6.3A7.9 7.9 0 0 0 12 4a7.9 7.9 0 0 0-6.8 11.9L4 20l4.2-1.1A7.9 7.9 0 0 0 12 20a7.9 7.9 0 0 0 5.6-13.7ZM12 18.6c-1.2 0-2.4-.3-3.4-.9l-.24-.15-2.5.66.67-2.43-.16-.25A6.6 6.6 0 1 1 12 18.6Zm3.6-4.95c-.2-.1-1.17-.58-1.35-.64s-.31-.1-.44.1-.5.63-.62.76-.23.15-.43.05a5.4 5.4 0 0 1-1.6-1 6 6 0 0 1-1.1-1.37c-.12-.2 0-.3.09-.4l.3-.35c.1-.12.13-.2.2-.34a.37.37 0 0 0 0-.35c0-.1-.44-1.06-.6-1.45s-.32-.33-.44-.34h-.38a.72.72 0 0 0-.52.24 2.2 2.2 0 0 0-.68 1.62 3.8 3.8 0 0 0 .8 2 8.7 8.7 0 0 0 3.34 2.95c.47.2.83.32 1.11.42.47.15.9.13 1.23.08.38-.06 1.17-.48 1.33-.94s.17-.86.12-.94-.18-.14-.38-.24Z"/></svg>
 </a>
 
+<script async src="//www.instagram.com/embed.js"></script>
+
 <script>
 // NAV scroll
 window.addEventListener('scroll',()=>document.getElementById('nv').classList.toggle('sc',scrollY>50));
@@ -510,7 +532,7 @@ const T={
     sv6:'Tour Production',sv7:'Full technical production. Stage, lighting, video, SFX, pyrotechnics. We handle everything.',
     sv8:'Logistics & Management',sv9:'Tour scheduling, crew management, rider compliance, venue coordination.',
     sv10:'Technical Consulting',sv11:'Rider preparation, counter-rider evaluation, system design, venue assessment.',
-    ar0:'Who We Work With',ar1:'Artists',
+    ar0:'Who We Work With',ar1:'Artists',rl0:'Live',
     tm0:'The People',tm1:'Who We Are',
     tm2:'Colombian sound engineer based in Spain.',
     tm3:'Over 2,000 shows across Europe, Latin America and the United States. More than 7 years working with world-class Latin urban and pop artists on international tours — from intimate club nights to sold-out arenas and iconic venues like Ushuaïa Ibiza.',
@@ -541,7 +563,7 @@ const T={
     sv6:'Producción de Tour',sv7:'Producción técnica integral. Escenario, iluminación, video, SFX, pirotecnia.',
     sv8:'Logística y Gestión',sv9:'Calendario de tours, gestión de equipo, cumplimiento de riders, coordinación de venues.',
     sv10:'Consultoría Técnica',sv11:'Preparación de riders, evaluación de contra-riders, diseño de sistemas.',
-    ar0:'Con Quién Trabajamos',ar1:'Artistas',
+    ar0:'Con Quién Trabajamos',ar1:'Artistas',rl0:'En directo',
     tm0:'El Equipo',tm1:'Quiénes Somos',
     tm2:'Ingeniero de sonido colombiano basado en España.',
     tm3:'Más de 2.000 shows en Europa, Latinoamérica y Estados Unidos. Más de 7 años trabajando con artistas latinos urbanos y pop en tours internacionales — desde clubs íntimos hasta estadios sold out y venues icónicos como Ushuaïa Ibiza.',
