@@ -204,7 +204,7 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
 
 
 @media(max-width:768px){
-  nav{padding:16px 20px;} .nm{display:none;}
+  nav{padding:16px 20px;} .nm{display:none;} #nentrar{display:none;}
   .hero{padding:0 20px 48px;} .si{display:none;}
   .sp2{padding:68px 20px;} .stats{padding:68px 20px;}
   .sg{grid-template-columns:1fr 1fr;}
@@ -242,6 +242,33 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
 .rental-note-text{font-size:12px;line-height:1.8;color:#555;}
 .rental-note-text strong{color:rgba(240,235,228,.7);font-weight:400;display:block;margin-bottom:4px;}
 @media(max-width:768px){.rental-grid{grid-template-columns:1fr;}}
+
+/* TOURDESK PRODUCT */
+.tdk{background:#0a0a0a;position:relative;overflow:hidden;}
+.tdk::before{content:'';position:absolute;left:46%;top:40%;width:900px;height:900px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(224,58,56,.13),transparent 62%);pointer-events:none;}
+.tdk-in{position:relative;display:grid;grid-template-columns:auto 1fr;gap:64px;align-items:center;}
+.tdk-phone{position:relative;width:296px;flex-shrink:0;justify-self:center;}
+.tdk-phone video{width:100%;display:block;border-radius:26px;border:1px solid #1c1c1c;box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 60px rgba(224,58,56,.14);background:#050505;}
+.tdk-badge{position:absolute;top:13px;left:13px;z-index:2;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#f0ebe4;background:#E03A38;padding:5px 10px;border-radius:2px;}
+.tdk-mark{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,9vw,112px);line-height:.86;letter-spacing:2px;margin-bottom:8px;}
+.tdk-mark .r{color:#E03A38;}
+.tdk-by{font-size:11px;letter-spacing:6px;text-transform:uppercase;color:#8a8a8a;margin-bottom:26px;padding-left:2px;}
+.tdk-tag{font-family:'Bebas Neue',sans-serif;font-size:clamp(23px,3vw,36px);line-height:1.03;color:#f0ebe4;margin-bottom:20px;max-width:520px;}
+.tdk-body{font-size:13.5px;line-height:1.9;color:rgba(240,235,228,.5);max-width:500px;margin-bottom:24px;}
+.tdk-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:34px;max-width:520px;}
+.td-chip{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#b9b1a6;border:1px solid #222;background:#0f0f0f;padding:7px 13px;border-radius:2px;}
+.tdk-cta{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.tdk-btn{display:inline-flex;align-items:center;gap:12px;background:#E03A38;color:#f0ebe4;padding:15px 30px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:500;font-family:'DM Sans',sans-serif;white-space:nowrap;box-shadow:0 8px 30px rgba(224,58,56,.28);transition:transform .2s,box-shadow .2s;}
+.tdk-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(224,58,56,.45);}
+.tdk-note{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#555;}
+@media(max-width:860px){
+  .tdk-in{grid-template-columns:1fr;gap:38px;justify-items:center;text-align:center;}
+  .tdk-phone{width:248px;order:-1;}
+  .tdk-tag,.tdk-body{max-width:100%;}
+  .tdk-chips{justify-content:center;}
+  .tdk-cta{justify-content:center;}
+  .tdk-copy .slb::after{display:none;}
+}
 </style>
 </head>
 <body>
@@ -262,6 +289,7 @@ setTimeout(go,2600);})();
   <div class="nl">OFFSTAGE</div>
   <ul class="nm">
     <li><a href="#services" id="n1">Services</a></li>
+    <li><a href="#tourdesk">TourDesk</a></li>
     <li><a href="#artists" id="n2">Artists</a></li>
     <li><a href="#reels">Reels</a></li>
     <li><a href="#team" id="n3">Team</a></li>
@@ -269,6 +297,7 @@ setTimeout(go,2600);})();
   </ul>
   <div class="nr">
     <button class="lb" onclick="toggleLang()" id="lbtn">ES</button>
+    <a href="https://tourdesk-pro.vercel.app" class="lb" id="nentrar">Entrar</a>
     <a href="#contact" class="bb" id="nb">Book Now</a>
   </div>
 </nav>
@@ -320,6 +349,27 @@ setTimeout(go,2600);})();
     <div class="svc rv"><div class="svn">04</div><div class="svt" id="sv6">Tour Production</div><div class="svd" id="sv7">Full technical production. Stage, lighting, video, SFX, pyrotechnics. We handle everything.</div><div class="svk">Full Production</div></div>
     <div class="svc rv"><div class="svn">05</div><div class="svt" id="sv8">Logistics &amp; Management</div><div class="svd" id="sv9">Tour scheduling, crew management, rider compliance, venue coordination.</div><div class="svk">Tour Management</div></div>
     <div class="svc rv"><div class="svn">06</div><div class="svt" id="sv10">Technical Consulting</div><div class="svd" id="sv11">Rider preparation, counter-rider evaluation, system design, venue assessment.</div><div class="svk">Consulting</div></div>
+  </div>
+</section>
+
+<section class="tdk sp2" id="tourdesk">
+  <div class="tdk-in">
+    <div class="tdk-phone rv">
+      <span class="tdk-badge" id="td_badge">Nuevo</span>
+      <video src="tourdesk-teaser.mp4" poster="tourdesk-poster.jpg" autoplay muted loop playsinline preload="auto"></video>
+    </div>
+    <div class="tdk-copy rv">
+      <div class="slb"><span id="td_lbl">Nuestro producto</span></div>
+      <div class="tdk-mark">TOUR<span class="r">DESK</span></div>
+      <div class="tdk-by">by OffStage</div>
+      <div class="tdk-tag" id="td_tag">El software que construimos para producir giras sin caos.</div>
+      <p class="tdk-body" id="td_body">Fechas, day sheets, viajes, guest list, equipo y cuentas — todo en un solo lugar, y hasta sin señal. Hecho por gente de gira, para gente de gira.</p>
+      <div class="tdk-chips" id="td-chips"></div>
+      <div class="tdk-cta">
+        <a href="https://tourdesk-pro.vercel.app" class="tdk-btn"><span id="td_cta">Entrar a TourDesk</span> <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5h10M8 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <span class="tdk-note" id="td_note">Acceso por invitación · lanzamiento pronto</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -556,6 +606,11 @@ const T={
     sv8:'Logistics & Management',sv9:'Tour scheduling, crew management, rider compliance, venue coordination.',
     sv10:'Technical Consulting',sv11:'Rider preparation, counter-rider evaluation, system design, venue assessment.',
     ar0:'Who We Work With',ar1:'Artists',rl0:'Live',
+    nentrar:'Enter',td_badge:'New',td_lbl:'Our Product',
+    td_tag:'The software we built to run tours without the chaos.',
+    td_body:'Dates, day sheets, travel, guest list, crew and finances — all in one place, even offline. Built by touring pros, for touring pros.',
+    td_cta:'Enter TourDesk',td_note:'Invite-only · launching soon',
+    td_chips:['Shows','Day Sheets','Travel','Guest List','Finances','Offline'],
     tm0:'The People',tm1:'Who We Are',
     tm2:'Colombian sound engineer based in Spain.',
     tm3:'Over 2,000 shows across Europe, Latin America and the United States. More than 7 years working with world-class Latin urban and pop artists on international tours — from intimate club nights to sold-out arenas and iconic venues like Ushuaïa Ibiza.',
@@ -587,6 +642,11 @@ const T={
     sv8:'Logística y Gestión',sv9:'Calendario de tours, gestión de equipo, cumplimiento de riders, coordinación de venues.',
     sv10:'Consultoría Técnica',sv11:'Preparación de riders, evaluación de contra-riders, diseño de sistemas.',
     ar0:'Con Quién Trabajamos',ar1:'Artistas',rl0:'En directo',
+    nentrar:'Entrar',td_badge:'Nuevo',td_lbl:'Nuestro producto',
+    td_tag:'El software que construimos para producir giras sin caos.',
+    td_body:'Fechas, day sheets, viajes, guest list, equipo y cuentas — todo en un solo lugar, y hasta sin señal. Hecho por gente de gira, para gente de gira.',
+    td_cta:'Entrar a TourDesk',td_note:'Acceso por invitación · lanzamiento pronto',
+    td_chips:['Shows','Day Sheets','Viajes','Guest List','Finanzas','Offline'],
     tm0:'El Equipo',tm1:'Quiénes Somos',
     tm2:'Ingeniero de sonido colombiano basado en España.',
     tm3:'Más de 2.000 shows en Europa, Latinoamérica y Estados Unidos. Más de 7 años trabajando con artistas latinos urbanos y pop en tours internacionales — desde clubs íntimos hasta estadios sold out y venues icónicos como Ushuaïa Ibiza.',
@@ -609,9 +669,12 @@ let lang='en';
 function applyLang(){
   const t=T[lang];
   Object.keys(t).forEach(id=>{
+    if(id==='td_chips')return;
     const el=document.getElementById(id);
     if(el)el.textContent=t[id];
   });
+  const chipsEl=document.getElementById('td-chips');
+  if(chipsEl&&t.td_chips){chipsEl.innerHTML='';t.td_chips.forEach(c=>{const s=document.createElement('span');s.className='td-chip';s.textContent=c;chipsEl.appendChild(s);});}
   document.getElementById('lbtn').textContent=lang==='en'?'ES':'EN';
 }
 function toggleLang(){lang=lang==='en'?'es':'en';applyLang();}
