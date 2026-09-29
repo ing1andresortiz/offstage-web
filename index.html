@@ -260,13 +260,22 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
 .tdk-cta{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
 .tdk-btn{display:inline-flex;align-items:center;gap:12px;background:#E03A38;color:#f0ebe4;padding:15px 30px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:500;font-family:'DM Sans',sans-serif;white-space:nowrap;box-shadow:0 8px 30px rgba(224,58,56,.28);transition:transform .2s,box-shadow .2s;}
 .tdk-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(224,58,56,.45);}
-.tdk-note{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#555;}
+.tdk-note{font-size:11px;letter-spacing:.3px;color:#666;}
+.tdk-req{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;max-width:490px;}
+.tdk-inp{flex:1;min-width:210px;background:#0e0e0e;border:1px solid #232323;color:#f0ebe4;padding:15px 16px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.tdk-inp:focus{border-color:#E03A38;}
+.tdk-req .tdk-btn{border:none;cursor:pointer;}
+.tdk-sub{font-size:11px;color:#666;letter-spacing:.3px;max-width:490px;}
+.tdk-sub a{color:#b9b1a6;text-decoration:underline;text-underline-offset:2px;}
+.tdk-sub a:hover{color:#E03A38;}
+.tdk-ok{font-size:13.5px;color:#16a34a;font-weight:500;padding:12px 0;}
 @media(max-width:860px){
   .tdk-in{grid-template-columns:1fr;gap:38px;justify-items:center;text-align:center;}
   .tdk-phone{width:248px;order:-1;}
   .tdk-tag,.tdk-body{max-width:100%;}
   .tdk-chips{justify-content:center;}
-  .tdk-cta{justify-content:center;}
+  .tdk-cta,.tdk-req{justify-content:center;}
+  .tdk-sub{margin:0 auto;}
   .tdk-copy .slb::after{display:none;}
 }
 </style>
@@ -365,10 +374,12 @@ setTimeout(go,2600);})();
       <div class="tdk-tag" id="td_tag">El software que construimos para producir giras sin caos.</div>
       <p class="tdk-body" id="td_body">Fechas, day sheets, viajes, guest list, equipo y cuentas — todo en un solo lugar, y hasta sin señal. Hecho por gente de gira, para gente de gira.</p>
       <div class="tdk-chips" id="td-chips"></div>
-      <div class="tdk-cta">
-        <a href="https://tourdesk-pro.vercel.app" class="tdk-btn"><span id="td_cta">Entrar a TourDesk</span> <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5h10M8 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        <span class="tdk-note" id="td_note">Acceso por invitación · lanzamiento pronto</span>
-      </div>
+      <form class="tdk-req" onsubmit="handleTDRequest(event)">
+        <input class="tdk-inp" id="td_email" type="email" name="email" required placeholder="Tu email" autocomplete="email"/>
+        <button class="tdk-btn" type="submit"><span id="td_cta">Solicitar acceso</span> <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5h10M8 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <input type="text" name="_honey2" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+      </form>
+      <div class="tdk-sub"><span id="td_note">Sé de los primeros en probarlo cuando abramos.</span> · <a href="https://tourdesk-pro.vercel.app" id="td_have">¿Ya tienes acceso? Entrar</a></div>
     </div>
   </div>
 </section>
@@ -609,7 +620,7 @@ const T={
     nentrar:'Enter',td_badge:'New',td_lbl:'Our Product',
     td_tag:'The software we built to run tours without the chaos.',
     td_body:'Dates, day sheets, travel, guest list, crew and finances — all in one place, even offline. Built by touring pros, for touring pros.',
-    td_cta:'Enter TourDesk',td_note:'Invite-only · launching soon',
+    td_cta:'Request access',td_note:'Be first to try it when we launch.',td_have:'Already have access? Enter',
     td_chips:['Shows','Day Sheets','Travel','Guest List','Finances','Offline'],
     tm0:'The People',tm1:'Who We Are',
     tm2:'Colombian sound engineer based in Spain.',
@@ -645,7 +656,7 @@ const T={
     nentrar:'Entrar',td_badge:'Nuevo',td_lbl:'Nuestro producto',
     td_tag:'El software que construimos para producir giras sin caos.',
     td_body:'Fechas, day sheets, viajes, guest list, equipo y cuentas — todo en un solo lugar, y hasta sin señal. Hecho por gente de gira, para gente de gira.',
-    td_cta:'Entrar a TourDesk',td_note:'Acceso por invitación · lanzamiento pronto',
+    td_cta:'Solicitar acceso',td_note:'Sé de los primeros en probarlo cuando abramos.',td_have:'¿Ya tienes acceso? Entrar',
     td_chips:['Shows','Day Sheets','Viajes','Guest List','Finanzas','Offline'],
     tm0:'El Equipo',tm1:'Quiénes Somos',
     tm2:'Ingeniero de sonido colombiano basado en España.',
@@ -675,6 +686,8 @@ function applyLang(){
   });
   const chipsEl=document.getElementById('td-chips');
   if(chipsEl&&t.td_chips){chipsEl.innerHTML='';t.td_chips.forEach(c=>{const s=document.createElement('span');s.className='td-chip';s.textContent=c;chipsEl.appendChild(s);});}
+  const tdEmail=document.getElementById('td_email');
+  if(tdEmail)tdEmail.placeholder=lang==='es'?'Tu email':'Your email';
   document.getElementById('lbtn').textContent=lang==='en'?'ES':'EN';
 }
 function toggleLang(){lang=lang==='en'?'es':'en';applyLang();}
@@ -769,6 +782,26 @@ function handleForm(e){
     btn.textContent=lang==='es'?'Reintenta':'Retry';
     btn.style.background='#E03A38';
     setTimeout(function(){btn.textContent=T[lang].fsb;btn.style.background='';btn.disabled=false;},4000);
+  });
+}
+
+// TOURDESK — solicitud de acceso (lista de espera)
+function handleTDRequest(e){
+  e.preventDefault();
+  var form=e.target;
+  if(form.querySelector('[name="_honey2"]').value) return; // anti-spam
+  var inp=form.querySelector('[name="email"]');
+  var email=(inp.value||'').trim(); if(!email) return;
+  var btn=form.querySelector('.tdk-btn'), span=btn.querySelector('#td_cta');
+  btn.disabled=true; if(span) span.textContent=lang==='es'?'Enviando…':'Sending…';
+  fetch('https://formsubmit.co/ajax/andres@weareoffstage.pro',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify({email:email,_subject:'TourDesk — Solicitud de acceso',_template:'table',_captcha:'false',producto:'TourDesk · lista de espera'})
+  }).then(function(r){return r.json();}).then(function(){
+    form.innerHTML='<div class="tdk-ok">'+(lang==='es'?'✓ Estás en la lista. Te avisamos cuando abramos.':'✓ You’re on the list. We’ll let you know when we open.')+'</div>';
+  }).catch(function(){
+    if(span) span.textContent=lang==='es'?'Reintenta':'Retry'; btn.disabled=false;
   });
 }
 </script>
