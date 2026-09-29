@@ -204,7 +204,7 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
 
 
 @media(max-width:768px){
-  nav{padding:16px 20px;} .nm{display:none;} #nentrar{display:none;}
+  nav{padding:16px 20px;} .nm{display:none;} .nr{display:none;}
   .hero{padding:0 20px 48px;} .si{display:none;}
   .sp2{padding:68px 20px;} .stats{padding:68px 20px;}
   .sg{grid-template-columns:1fr 1fr;}
@@ -278,6 +278,29 @@ footer{background:#070707;border-top:1px solid #0e0e0e;padding:32px 40px;display
   .tdk-sub{margin:0 auto;}
   .tdk-copy .slb::after{display:none;}
 }
+
+/* MOBILE MENU */
+.burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px 6px;margin-left:6px;}
+.burger span{display:block;width:24px;height:2px;background:#f0ebe4;transition:transform .3s,opacity .3s;}
+.burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.burger.open span:nth-child(2){opacity:0;}
+.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mmenu{position:fixed;inset:0;z-index:105;background:rgba(7,7,7,.985);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:0;pointer-events:none;transition:opacity .3s;}
+.mmenu.open{opacity:1;pointer-events:auto;}
+.mmenu a{font-family:'Bebas Neue',sans-serif;font-size:33px;letter-spacing:3px;color:#f0ebe4;padding:9px 0;line-height:1;}
+.mmenu a.mtd{color:#E03A38;}
+.mmbot{margin-top:30px;display:flex;gap:12px;align-items:center;}
+.mmbot .mm-lang{font-size:10px;letter-spacing:2px;text-transform:uppercase;background:transparent;border:1px solid rgba(240,235,228,.25);color:#f0ebe4;padding:9px 15px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.mmbot .mm-enter{font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(240,235,228,.25);color:#f0ebe4;padding:9px 15px;font-family:'DM Sans',sans-serif;}
+.mmbot .bb{font-size:10px;}
+
+/* WAITLIST COUNTER */
+.tdk-count{display:inline-flex;align-items:center;gap:9px;margin-bottom:16px;font-size:12px;letter-spacing:.3px;color:#c9b7a8;background:rgba(224,58,56,.08);border:1px solid rgba(224,58,56,.25);padding:8px 15px;border-radius:100px;}
+.tdk-count .dotpulse{width:7px;height:7px;border-radius:50%;background:#E03A38;flex-shrink:0;animation:cpulse 1.9s infinite;}
+.tdk-count b{color:#f0ebe4;font-weight:600;}
+@keyframes cpulse{0%{box-shadow:0 0 0 0 rgba(224,58,56,.5);}70%{box-shadow:0 0 0 7px rgba(224,58,56,0);}100%{box-shadow:0 0 0 0 rgba(224,58,56,0);}}
+@media(max-width:860px){.tdk-count{margin-left:auto;margin-right:auto;}}
+@media(max-width:768px){.burger{display:flex;}}
 </style>
 </head>
 <body>
@@ -309,7 +332,23 @@ setTimeout(go,2600);})();
     <a href="https://tourdesk-pro.vercel.app" class="lb" id="nentrar">Entrar</a>
     <a href="#contact" class="bb" id="nb">Book Now</a>
   </div>
+  <button class="burger" id="burger" onclick="toggleMenu()" aria-label="Menú"><span></span><span></span><span></span></button>
 </nav>
+
+<div class="mmenu" id="mmenu">
+  <a href="#services" id="mm1" onclick="closeMenu()">Servicios</a>
+  <a href="#tourdesk" class="mtd" onclick="closeMenu()">TourDesk</a>
+  <a href="#artists" id="mm2" onclick="closeMenu()">Artistas</a>
+  <a href="#reels" onclick="closeMenu()">Reels</a>
+  <a href="#team" id="mm3" onclick="closeMenu()">Equipo</a>
+  <a href="#rental" onclick="closeMenu()">Rental</a>
+  <a href="#contact" id="mm4" onclick="closeMenu()">Booking</a>
+  <div class="mmbot">
+    <button class="mm-lang" onclick="toggleLang()" id="mlbtn">ES</button>
+    <a href="https://tourdesk-pro.vercel.app" class="mm-enter" id="mm5">Entrar</a>
+    <a href="#contact" class="bb" id="mmb" onclick="closeMenu()">Book Now</a>
+  </div>
+</div>
 
 <section class="hero" id="top">
   <div class="hbg"></div>
@@ -374,6 +413,7 @@ setTimeout(go,2600);})();
       <div class="tdk-tag" id="td_tag">El software que construimos para producir giras sin caos.</div>
       <p class="tdk-body" id="td_body">Fechas, day sheets, viajes, guest list, equipo y cuentas — todo en un solo lugar, y hasta sin señal. Hecho por gente de gira, para gente de gira.</p>
       <div class="tdk-chips" id="td-chips"></div>
+      <div class="tdk-count" id="tdk-count" style="display:none"></div>
       <form class="tdk-req" onsubmit="handleTDRequest(event)">
         <input class="tdk-inp" id="td_email" type="email" name="email" required placeholder="Tu email" autocomplete="email"/>
         <button class="tdk-btn" type="submit"><span id="td_cta">Solicitar acceso</span> <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5h10M8 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -688,6 +728,10 @@ function applyLang(){
   if(chipsEl&&t.td_chips){chipsEl.innerHTML='';t.td_chips.forEach(c=>{const s=document.createElement('span');s.className='td-chip';s.textContent=c;chipsEl.appendChild(s);});}
   const tdEmail=document.getElementById('td_email');
   if(tdEmail)tdEmail.placeholder=lang==='es'?'Tu email':'Your email';
+  const setT=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  setT('mm1',t.n1);setT('mm2',t.n2);setT('mm3',t.n3);setT('mm5',t.nentrar);setT('mmb',t.nb);
+  const ml=document.getElementById('mlbtn');if(ml)ml.textContent=lang==='en'?'ES':'EN';
+  if(typeof renderCount==='function')renderCount(window.tdCount||0);
   document.getElementById('lbtn').textContent=lang==='en'?'ES':'EN';
 }
 function toggleLang(){lang=lang==='en'?'es':'en';applyLang();}
@@ -799,11 +843,42 @@ function handleTDRequest(e){
     headers:{'Content-Type':'application/json','Accept':'application/json'},
     body: JSON.stringify({email:email,_subject:'TourDesk — Solicitud de acceso',_template:'table',_captcha:'false',producto:'TourDesk · lista de espera'})
   }).then(function(r){return r.json();}).then(function(){
+    try{ bumpCount(); }catch(e){}
     form.innerHTML='<div class="tdk-ok">'+(lang==='es'?'✓ Estás en la lista. Te avisamos cuando abramos.':'✓ You’re on the list. We’ll let you know when we open.')+'</div>';
   }).catch(function(){
     if(span) span.textContent=lang==='es'?'Reintenta':'Retry'; btn.disabled=false;
   });
 }
+
+// MOBILE MENU
+function toggleMenu(){var m=document.getElementById('mmenu'),b=document.getElementById('burger');var open=m.classList.toggle('open');if(b)b.classList.toggle('open',open);document.body.style.overflow=open?'hidden':'';}
+function closeMenu(){var m=document.getElementById('mmenu'),b=document.getElementById('burger');if(m)m.classList.remove('open');if(b)b.classList.remove('open');document.body.style.overflow='';}
+
+// WAITLIST COUNTER (Firestore REST) — vive del backend que ya tiene la app
+window.tdCount=0;
+var TDK_KEY="AIzaSyBuAyW-pnnMpPOOWAlzhPBaQM9YKd9OBmQ";
+var TDK_DOC="projects/tourdesk-offstage/databases/(default)/documents/tourdesk/tdwaitlist";
+function renderCount(n){
+  var el=document.getElementById('tdk-count'); if(!el) return;
+  el.style.display='inline-flex';
+  if(n&&n>0){
+    el.innerHTML='<span class="dotpulse"></span><span>'+(lang==='es'?'<b>'+n+'</b> ya pidieron acceso · beta privada':'<b>'+n+'</b> already requested access · private beta')+'</span>';
+  }else{
+    el.innerHTML='<span class="dotpulse"></span><span>'+(lang==='es'?'Beta privada · sé de los primeros en entrar':'Private beta · be first in')+'</span>';
+  }
+}
+function fetchCount(){
+  fetch('https://firestore.googleapis.com/v1/'+TDK_DOC+'?key='+TDK_KEY).then(function(r){return r.json();}).then(function(j){
+    var n=0; try{ n=parseInt(j.fields.count.integerValue,10)||0; }catch(e){ n=0; }
+    window.tdCount=n; renderCount(n);
+  }).catch(function(){ renderCount(0); });
+}
+function bumpCount(){
+  window.tdCount=(window.tdCount||0)+1; renderCount(window.tdCount);
+  var body={writes:[{update:{name:TDK_DOC},updateMask:{fieldPaths:[]},updateTransforms:[{fieldPath:"count",increment:{integerValue:"1"}}]}]};
+  fetch('https://firestore.googleapis.com/v1/projects/tourdesk-offstage/databases/(default)/documents:commit?key='+TDK_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).catch(function(){});
+}
+renderCount(0); fetchCount();
 </script>
 </body>
 </html>
