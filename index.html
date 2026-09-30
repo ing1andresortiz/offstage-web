@@ -833,20 +833,26 @@ function handleForm(e){
 function handleTDRequest(e){
   e.preventDefault();
   var form=e.target;
-  if(form.querySelector('[name="_honey2"]').value) return; // anti-spam
+  var hp=form.querySelector('[name="_honey2"]'); if(hp&&hp.value) return; // anti-spam
   var inp=form.querySelector('[name="email"]');
   var email=(inp.value||'').trim(); if(!email) return;
-  var btn=form.querySelector('.tdk-btn'), span=btn.querySelector('#td_cta');
-  btn.disabled=true; if(span) span.textContent=lang==='es'?'Enviando…':'Sending…';
-  fetch('https://formsubmit.co/ajax/andres@weareoffstage.pro',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body: JSON.stringify({email:email,_subject:'TourDesk — Solicitud de acceso',_template:'table',_captcha:'false',producto:'TourDesk · lista de espera'})
-  }).then(function(r){return r.json();}).then(function(){
-    try{ bumpCount(); }catch(e){}
+  var btn=form.querySelector('.tdk-btn'), span=btn?btn.querySelector('#td_cta'):null;
+  if(btn)btn.disabled=true; if(span) span.textContent=lang==='es'?'Enviando…':'Sending…';
+  // Aviso por correo (best-effort; algunos adblock lo bloquean, por eso NO dependemos de esto)
+  try{ fetch('https://formsubmit.co/ajax/andres@weareoffstage.pro',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email:email,_subject:'TourDesk — Solicitud de acceso',_template:'table',_captcha:'false'})}).catch(function(){}); }catch(e2){}
+  // Captura confiable en Firestore: guarda el correo (privado) + sube el contador, en un solo commit
+  var lead={mapValue:{fields:{email:{stringValue:email},ts:{integerValue:String(Date.now())}}}};
+  var body={writes:[
+    {update:{name:"projects/tourdesk-offstage/databases/(default)/documents/tourdesk/tdwaitlist_leads"},updateMask:{fieldPaths:[]},updateTransforms:[{fieldPath:"entries",appendMissingElements:{values:[lead]}}]},
+    {update:{name:"projects/tourdesk-offstage/databases/(default)/documents/tourdesk/tdwaitlist"},updateMask:{fieldPaths:[]},updateTransforms:[{fieldPath:"count",increment:{integerValue:"1"}}]}
+  ]};
+  fetch('https://firestore.googleapis.com/v1/projects/tourdesk-offstage/databases/(default)/documents:commit?key='+TDK_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  .then(function(r){ if(!r.ok) throw new Error('fs'+r.status); return r.json(); })
+  .then(function(){
+    window.tdCount=(window.tdCount||0)+1; renderCount(window.tdCount);
     form.innerHTML='<div class="tdk-ok">'+(lang==='es'?'✓ Estás en la lista. Te avisamos cuando abramos.':'✓ You’re on the list. We’ll let you know when we open.')+'</div>';
   }).catch(function(){
-    if(span) span.textContent=lang==='es'?'Reintenta':'Retry'; btn.disabled=false;
+    if(span) span.textContent=lang==='es'?'Reintenta':'Retry'; if(btn)btn.disabled=false;
   });
 }
 
