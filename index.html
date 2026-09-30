@@ -838,20 +838,20 @@ function handleTDRequest(e){
   var email=(inp.value||'').trim(); if(!email) return;
   var btn=form.querySelector('.tdk-btn'), span=btn?btn.querySelector('#td_cta'):null;
   if(btn)btn.disabled=true; if(span) span.textContent=lang==='es'?'Enviando…':'Sending…';
-  // Aviso por correo (best-effort; algunos adblock lo bloquean, por eso NO dependemos de esto)
-  try{ fetch('https://formsubmit.co/ajax/andres@weareoffstage.pro',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email:email,_subject:'TourDesk — Solicitud de acceso',_template:'table',_captcha:'false'})}).catch(function(){}); }catch(e2){}
-  // Captura confiable en Firestore: sube el contador + guarda el correo, en un solo write (doc ya permitido)
-  var lead={mapValue:{fields:{email:{stringValue:email},ts:{integerValue:String(Date.now())}}}};
-  var body={writes:[
-    {update:{name:"projects/tourdesk-offstage/databases/(default)/documents/tourdesk/tdwaitlist"},updateMask:{fieldPaths:[]},updateTransforms:[
-      {fieldPath:"count",increment:{integerValue:"1"}},
-      {fieldPath:"entries",appendMissingElements:{values:[lead]}}
-    ]}
-  ]};
-  fetch('https://firestore.googleapis.com/v1/projects/tourdesk-offstage/databases/(default)/documents:commit?key='+TDK_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-  .then(function(r){ if(!r.ok) throw new Error('fs'+r.status); return r.json(); })
-  .then(function(){
-    window.tdCount=(window.tdCount||0)+1; renderCount(window.tdCount);
+  // La solicitud llega al inbox por Web3Forms (privado y confiable). Nada de datos personales en sitios públicos.
+  fetch('https://api.web3forms.com/submit',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify({
+      access_key:'d131dcb4-a573-47da-8238-b4cf1ebf4aef',
+      subject:'TourDesk — Nueva solicitud de acceso',
+      from_name:'TourDesk · OffStage',
+      email:email,
+      mensaje:'Nueva solicitud de acceso a TourDesk desde weareoffstage.pro'
+    })
+  }).then(function(r){return r.json();}).then(function(data){
+    if(!data||!data.success) throw new Error('w3f');
+    try{ bumpCount(); }catch(e2){}   // solo sube el contador (número), sin datos personales
     form.innerHTML='<div class="tdk-ok">'+(lang==='es'?'✓ Estás en la lista. Te avisamos cuando abramos.':'✓ You’re on the list. We’ll let you know when we open.')+'</div>';
   }).catch(function(){
     if(span) span.textContent=lang==='es'?'Reintenta':'Retry'; if(btn)btn.disabled=false;
