@@ -840,11 +840,13 @@ function handleTDRequest(e){
   if(btn)btn.disabled=true; if(span) span.textContent=lang==='es'?'Enviando…':'Sending…';
   // Aviso por correo (best-effort; algunos adblock lo bloquean, por eso NO dependemos de esto)
   try{ fetch('https://formsubmit.co/ajax/andres@weareoffstage.pro',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({email:email,_subject:'TourDesk — Solicitud de acceso',_template:'table',_captcha:'false'})}).catch(function(){}); }catch(e2){}
-  // Captura confiable en Firestore: guarda el correo (privado) + sube el contador, en un solo commit
+  // Captura confiable en Firestore: sube el contador + guarda el correo, en un solo write (doc ya permitido)
   var lead={mapValue:{fields:{email:{stringValue:email},ts:{integerValue:String(Date.now())}}}};
   var body={writes:[
-    {update:{name:"projects/tourdesk-offstage/databases/(default)/documents/tourdesk/tdwaitlist_leads"},updateMask:{fieldPaths:[]},updateTransforms:[{fieldPath:"entries",appendMissingElements:{values:[lead]}}]},
-    {update:{name:"projects/tourdesk-offstage/databases/(default)/documents/tourdesk/tdwaitlist"},updateMask:{fieldPaths:[]},updateTransforms:[{fieldPath:"count",increment:{integerValue:"1"}}]}
+    {update:{name:"projects/tourdesk-offstage/databases/(default)/documents/tourdesk/tdwaitlist"},updateMask:{fieldPaths:[]},updateTransforms:[
+      {fieldPath:"count",increment:{integerValue:"1"}},
+      {fieldPath:"entries",appendMissingElements:{values:[lead]}}
+    ]}
   ]};
   fetch('https://firestore.googleapis.com/v1/projects/tourdesk-offstage/databases/(default)/documents:commit?key='+TDK_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){ if(!r.ok) throw new Error('fs'+r.status); return r.json(); })
@@ -874,7 +876,7 @@ function renderCount(n){
   }
 }
 function fetchCount(){
-  fetch('https://firestore.googleapis.com/v1/'+TDK_DOC+'?key='+TDK_KEY).then(function(r){return r.json();}).then(function(j){
+  fetch('https://firestore.googleapis.com/v1/'+TDK_DOC+'?key='+TDK_KEY+'&mask.fieldPaths=count').then(function(r){return r.json();}).then(function(j){
     var n=0; try{ n=parseInt(j.fields.count.integerValue,10)||0; }catch(e){ n=0; }
     window.tdCount=n; renderCount(n);
   }).catch(function(){ renderCount(0); });
