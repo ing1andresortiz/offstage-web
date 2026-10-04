@@ -1,0 +1,7 @@
+{
+  "name": "offstage-web",
+  "private": true,
+  "type": "module",
+  "description": "weareoffstage.pro: web de OffStage + OffStage Central (/central, portal de beta testers)",
+  "engines": { "node": ">=18" }
+}

@@ -1,0 +1,17 @@
+{
+  "redirects": [
+    { "source": "/central", "destination": "/central/", "permanent": false }
+  ],
+  "headers": [
+    { "source": "/central/(.*)", "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "Referrer-Policy", "value": "same-origin" },
+      { "key": "X-Frame-Options", "value": "DENY" },
+      { "key": "X-Robots-Tag", "value": "noindex" }
+    ] },
+    { "source": "/api/central/(.*)", "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "Cache-Control", "value": "no-store" }
+    ] }
+  ]
+}
