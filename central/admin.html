@@ -97,7 +97,7 @@ function inviteText (t) {
 
 async function load () {
   const { ok, status, data } = await api('state');
-  if (!ok) { if (status === 401) { $('#panel').classList.add('hidden'); $('#lock').classList.remove('hidden'); $('#lockErr').textContent = data.error || ''; } return; }
+  if (!ok) { $('#panel').classList.add('hidden'); $('#lock').classList.remove('hidden'); $('#lockErr').textContent = data.error || `Error del servidor (${status}).`; return; }
   $('#lock').classList.add('hidden'); $('#panel').classList.remove('hidden');
   const dlBy = {}; data.downloads.forEach(d => dlBy[d.email] = (dlBy[d.email] || 0) + 1);
   const active = data.testers.filter(t => t.active !== false).length;
@@ -127,7 +127,7 @@ async function load () {
   $('#downloads').innerHTML = data.downloads.map(d => `<tr><td>${fmt(d.ts)}</td><td>${esc(d.email)}</td><td>${esc(d.product)}</td><td>${esc(d.os)}</td><td>${esc(d.version || '—')}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Sin descargas todavía.</td></tr>';
 }
 
-$('#unlock').onclick = () => { PW = $('#pw').value; try { sessionStorage.setItem('osc_admin', PW); } catch {} load(); };
+$('#unlock').onclick = () => { PW = $('#pw').value.trim(); $('#lockErr').textContent = 'Comprobando…'; try { sessionStorage.setItem('osc_admin', PW); } catch {} load(); };
 $('#pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('#unlock').click(); });
 $('#add').onclick = async () => {
   $('#addErr').textContent = '';
