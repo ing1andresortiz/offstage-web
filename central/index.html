@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OffStage Central</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#070707; --panel:#121212; --panel2:#181818; --line:#262626; --cream:#F0EBE4; --dim:#9a948d; --red:#E03A38; --red2:#ff5552; --ok:#5fc27e; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--black); color: var(--cream); font-family: 'DM Sans', system-ui, sans-serif; }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  header { border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 16px; }
+  .brand { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: .5px; line-height: 1; }
+  .brand b { color: var(--red); font-weight: 400; }
+  .user { display: flex; gap: 12px; align-items: center; color: var(--dim); font-size: 14px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); background: var(--panel2);
+         color: var(--cream); border-radius: 8px; padding: 10px 16px; font: 600 14px 'DM Sans', sans-serif; cursor: pointer; text-decoration: none; }
+  .btn:hover { border-color: #444; }
+  .btn.primary { background: var(--red); border-color: var(--red); }
+  .btn.primary:hover { background: var(--red2); }
+  .btn.small { padding: 6px 10px; font-size: 13px; }
+  .btn[aria-disabled="true"] { opacity: .4; pointer-events: none; }
+  .hero { padding: 48px 0 20px; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: clamp(40px, 7vw, 68px); margin: 0; line-height: .95; letter-spacing: .5px; }
+  .hero p { color: var(--dim); max-width: 640px; margin: 14px 0 0; line-height: 1.55; }
+  .beta { display: inline-block; font: 700 11px 'DM Sans'; letter-spacing: 1.5px; color: var(--black); background: var(--cream); padding: 4px 8px; border-radius: 4px; margin-bottom: 14px; }
+  .grid { display: grid; gap: 18px; padding: 24px 0 48px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+  .card-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .kind { font: 700 11px 'DM Sans'; letter-spacing: 1.5px; color: var(--red); }
+  .card h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 36px; margin: 4px 0 0; letter-spacing: .4px; line-height: 1; }
+  .ver { font-size: 13px; color: var(--dim); margin-top: 6px; }
+  .ver b { color: var(--cream); font-weight: 600; }
+  .tag { color: #cfc9c2; line-height: 1.55; margin: 14px 0 18px; max-width: 760px; }
+  .dl { display: flex; gap: 10px; flex-wrap: wrap; }
+  .dl .btn { flex-direction: column; align-items: flex-start; min-width: 240px; padding: 12px 16px; }
+  .dl .btn small { font-weight: 400; font-size: 12px; opacity: .85; }
+  .tabs { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 16px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; }
+  .tabs h3 { font: 700 12px 'DM Sans'; letter-spacing: 1.4px; color: var(--dim); margin: 0 0 10px; text-transform: uppercase; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+  .seg button { background: none; border: 0; color: var(--dim); padding: 6px 12px; font: 600 13px 'DM Sans'; cursor: pointer; }
+  .seg button.on { background: var(--panel2); color: var(--cream); }
+  ol { margin: 0; padding-left: 20px; color: #d8d2cb; line-height: 1.6; font-size: 14px; }
+  ol code, .mono { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background: #000; border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+  ul.changes { list-style: none; margin: 0; padding: 0; font-size: 13px; color: #d8d2cb; }
+  ul.changes li { padding: 6px 0; border-bottom: 1px dashed #222; display: flex; gap: 10px; }
+  ul.changes time { color: var(--dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .login { max-width: 420px; margin: 8vh auto; }
+  .login h1 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 52px; margin: 0 0 6px; line-height: .95; }
+  .login p { color: var(--dim); margin: 0 0 22px; line-height: 1.5; }
+  label { display: block; font: 700 12px 'DM Sans'; letter-spacing: 1.2px; color: var(--dim); margin: 14px 0 6px; text-transform: uppercase; }
+  input { width: 100%; background: #0d0d0d; border: 1px solid var(--line); color: var(--cream); padding: 12px 14px; border-radius: 8px; font: 500 15px 'DM Sans'; }
+  input:focus { outline: 2px solid var(--red); outline-offset: 0; border-color: transparent; }
+  .err { color: var(--red2); font-size: 14px; min-height: 20px; margin-top: 10px; }
+  .note { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--red); border-radius: 10px; padding: 14px 16px; font-size: 14px; color: #cfc9c2; line-height: 1.5; }
+  footer { border-top: 1px solid var(--line); color: var(--dim); font-size: 13px; padding: 22px 0 40px; }
+  .muted { color: var(--dim); }
+  .hidden { display: none !important; }
+  @media (max-width: 760px) { .tabs { grid-template-columns: 1fr; } .dl .btn { min-width: 100%; } .user span { display: none; } }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand"><b>OFFSTAGE</b> CENTRAL</div>
+  <div class="user hidden" id="user"><span id="userEmail"></span><button class="btn small" id="logout">Salir</button></div>
+</div></header>
+
+<main class="wrap">
+  <!-- LOGIN -->
+  <section class="login hidden" id="loginView">
+    <div class="beta">BETA PRIVADA</div>
+    <h1>Acceso de beta testers</h1>
+    <p>Entra con el email y el código de invitación que te envió OffStage.</p>
+    <form id="loginForm" autocomplete="on">
+      <label for="email">Email</label>
+      <input id="email" type="email" required autocomplete="email" placeholder="tu@email.com">
+      <label for="code">Código de invitación</label>
+      <input id="code" required autocomplete="one-time-code" placeholder="XXXXX-XXXXX" style="text-transform:uppercase;letter-spacing:2px">
+      <div class="err" id="loginErr"></div>
+      <button class="btn primary" style="width:100%;margin-top:6px" type="submit" id="loginBtn">Entrar</button>
+    </form>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section class="hidden" id="appView">
+    <div class="hero">
+      <div class="beta">BETA PRIVADA</div>
+      <h1>Herramientas para el directo</h1>
+      <p>Aquí está siempre la última versión de OffStage Rack y de los plugins OffStage para Mac y Windows. Te mostramos primero la descarga para tu sistema.</p>
+    </div>
+    <div class="note">Son versiones beta sin firma de Apple ni de Microsoft: la primera vez el sistema pedirá permiso para abrirlas. Sigue los pasos de "Cómo instalar" de cada producto. Si algo falla, escribe a <a href="mailto:andres@weareoffstage.pro">andres@weareoffstage.pro</a> con tu sistema operativo, el host y una captura.</div>
+    <div class="grid" id="products"><div class="card muted">Cargando catálogo…</div></div>
+  </section>
+</main>
+
+<footer><div class="wrap">© OffStage · weareoffstage.pro · Software beta de uso privado: no lo compartas fuera del grupo de testers.</div></footer>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const OS = (() => { const p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent;
+  return /mac/i.test(p) ? 'mac' : /win/i.test(p) ? 'win' : 'mac'; })();
+const OS_NAME = { mac: 'macOS', win: 'Windows' };
+const fmtSize = (b) => b ? (b / 1048576).toFixed(1) + ' MB' : '';
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const codeify = (s) => esc(s).replace(/(xattr .*$|C:\\Program Files\\Common Files\\VST3\\?|\/Library\/Audio\/Plug-Ins)/g, '<code>$1</code>');
+
+async function api (path, opts) {
+  const r = await fetch(path, { credentials: 'same-origin', ...opts });
+  const j = await r.json().catch(() => ({}));
+  return { ok: r.ok, status: r.status, data: j };
+}
+
+function showLogin () { $('#loginView').classList.remove('hidden'); $('#appView').classList.add('hidden'); $('#user').classList.add('hidden'); }
+function showApp (me) {
+  $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden');
+  $('#user').classList.remove('hidden'); $('#userEmail').textContent = me.name ? `${me.name} · ${me.email}` : me.email;
+  loadCatalog();
+}
+
+function productCard (p) {
+  const order = [OS, OS === 'mac' ? 'win' : 'mac'].filter(o => p.platforms[o] || (p.guide && p.guide[o]));
+  const btns = order.map((o, i) => {
+    const pl = p.platforms[o];
+    const avail = pl && pl.available;
+    return `<a class="btn ${i === 0 ? 'primary' : ''}" ${avail ? `href="/api/central/download?product=${encodeURIComponent(p.id)}&os=${o}"` : 'aria-disabled="true"'}>
+      Descargar para ${OS_NAME[o]}<small>${esc(avail ? pl.label + ' · ' + fmtSize(pl.size) : 'Aún no hay build disponible')}</small></a>`;
+  }).join('');
+  const guide = (o) => `<ol>${(p.guide[o] || []).map(s => `<li>${codeify(s)}</li>`).join('')}</ol>`;
+  const changes = (p.changes || []).slice(0, 5).map(c => `<li><time>${esc(fmtDate(c.date))}</time><span>${esc(c.text)}</span></li>`).join('');
+  return `<article class="card" data-id="${esc(p.id)}">
+    <div class="card-top"><div>
+      <div class="kind">${esc(p.kind)}</div>
+      <h2>${esc(p.name)}</h2>
+      <div class="ver">${p.version ? `Versión <b>${esc(p.version)}</b> · ` : ''}build del ${esc(fmtDate(p.builtAt)) || '—'}</div>
+    </div></div>
+    <p class="tag">${esc(p.tagline)}</p>
+    <div class="dl">${btns}</div>
+    <div class="tabs">
+      <div><h3>Cómo instalar</h3>
+        <div class="seg">${order.map(o => `<button data-os="${o}" class="${o === order[0] ? 'on' : ''}">${OS_NAME[o]}</button>`).join('')}</div>
+        ${order.map(o => `<div class="guide ${o === order[0] ? '' : 'hidden'}" data-os="${o}">${guide(o)}</div>`).join('')}
+      </div>
+      <div><h3>Últimos cambios</h3><ul class="changes">${changes || '<li class="muted">—</li>'}</ul></div>
+    </div>
+  </article>`;
+}
+
+async function loadCatalog () {
+  const { ok, status, data } = await api('/api/central/catalog');
+  if (status === 401) return showLogin();
+  if (!ok) { $('#products').innerHTML = `<div class="card">No se pudo cargar el catálogo. ${esc(data.error || '')}</div>`; return; }
+  $('#products').innerHTML = data.products.map(productCard).join('');
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+    const card = b.closest('.card');
+    card.querySelectorAll('.seg button').forEach(x => x.classList.toggle('on', x === b));
+    card.querySelectorAll('.guide').forEach(g => g.classList.toggle('hidden', g.dataset.os !== b.dataset.os));
+  }));
+}
+
+$('#loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('#loginErr').textContent = ''; $('#loginBtn').disabled = true; $('#loginBtn').textContent = 'Entrando…';
+  const { ok, data } = await api('/api/central/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: $('#email').value, code: $('#code').value }) });
+  $('#loginBtn').disabled = false; $('#loginBtn').textContent = 'Entrar';
+  if (!ok) { $('#loginErr').textContent = data.error || 'No se pudo entrar.'; return; }
+  showApp(data);
+});
+$('#logout').addEventListener('click', async () => { await api('/api/central/logout', { method: 'POST' }); showLogin(); });
+
+(async () => {
+  const { ok, data } = await api('/api/central/me');
+  ok ? showApp(data) : showLogin();
+})();
+</script>
+</body>
+</html>

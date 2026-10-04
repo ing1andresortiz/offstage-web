@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OffStage Central · Admin</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#070707; --panel:#121212; --panel2:#181818; --line:#262626; --cream:#F0EBE4; --dim:#9a948d; --red:#E03A38; --red2:#ff5552; --ok:#5fc27e; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--black); color: var(--cream); font-family: 'DM Sans', system-ui, sans-serif; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 20px; }
+  header { border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { font-family: 'Bebas Neue', sans-serif; font-size: 28px; }
+  .brand b { color: var(--red); font-weight: 400; }
+  h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 30px; margin: 32px 0 12px; letter-spacing: .4px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+  label { display: block; font: 700 11px 'DM Sans'; letter-spacing: 1.2px; color: var(--dim); margin-bottom: 6px; text-transform: uppercase; }
+  input { background: #0d0d0d; border: 1px solid var(--line); color: var(--cream); padding: 10px 12px; border-radius: 8px; font: 500 14px 'DM Sans'; min-width: 220px; }
+  .btn { border: 1px solid var(--line); background: var(--panel2); color: var(--cream); border-radius: 8px; padding: 10px 14px; font: 600 13px 'DM Sans'; cursor: pointer; }
+  .btn.primary { background: var(--red); border-color: var(--red); }
+  .btn.small { padding: 5px 9px; font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--dim); font: 700 11px 'DM Sans'; letter-spacing: 1px; text-transform: uppercase; padding: 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 8px; border-bottom: 1px solid #1d1d1d; vertical-align: middle; }
+  .scroll { overflow-x: auto; }
+  .code { font-family: ui-monospace, Menlo, monospace; letter-spacing: 1px; }
+  .on { color: var(--ok); } .off { color: var(--red2); }
+  .muted { color: var(--dim); }
+  .err { color: var(--red2); margin-top: 8px; min-height: 18px; font-size: 14px; }
+  textarea { width: 100%; min-height: 150px; background: #0d0d0d; color: var(--cream); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font: 13px/1.5 'DM Sans'; }
+  .hidden { display: none !important; }
+  .stat { display: inline-block; margin-right: 22px; } .stat b { font-family: 'Bebas Neue'; font-size: 34px; font-weight: 400; display: block; line-height: 1; }
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand"><b>OFFSTAGE</b> CENTRAL · ADMIN</div><a class="btn small" href="/central/" style="text-decoration:none">Ver portal</a></div></header>
+<main class="wrap">
+  <section id="lock" class="card" style="max-width:420px;margin:10vh auto">
+    <label for="pw">Contraseña de admin</label>
+    <div class="row"><input id="pw" type="password" autocomplete="current-password"><button class="btn primary" id="unlock">Entrar</button></div>
+    <div class="err" id="lockErr"></div>
+  </section>
+
+  <section id="panel" class="hidden">
+    <h2>Resumen</h2>
+    <div class="card" id="stats"></div>
+
+    <h2>Invitar tester</h2>
+    <div class="card">
+      <div class="row">
+        <div><label for="nName">Nombre</label><input id="nName" placeholder="Nombre y apellido"></div>
+        <div><label for="nEmail">Email</label><input id="nEmail" type="email" placeholder="tester@email.com"></div>
+        <button class="btn primary" id="add">Crear invitación</button>
+      </div>
+      <div class="err" id="addErr"></div>
+      <div id="inviteBox" class="hidden" style="margin-top:12px">
+        <label>Mensaje para enviar (WhatsApp / email)</label>
+        <textarea id="inviteMsg" readonly></textarea>
+        <button class="btn small" id="copyInvite" style="margin-top:8px">Copiar mensaje</button>
+      </div>
+    </div>
+
+    <h2>Testers</h2>
+    <div class="card scroll"><table><thead><tr><th>Nombre</th><th>Email</th><th>Código</th><th>Estado</th><th>Último acceso</th><th>Descargas</th><th></th></tr></thead><tbody id="testers"></tbody></table></div>
+
+    <h2>Builds disponibles</h2>
+    <div class="card scroll"><table><thead><tr><th>Producto</th><th>Versión</th><th>macOS</th><th>Windows</th></tr></thead><tbody id="builds"></tbody></table></div>
+
+    <h2>Últimas descargas</h2>
+    <div class="card scroll"><table><thead><tr><th>Fecha</th><th>Tester</th><th>Producto</th><th>Sistema</th><th>Versión</th></tr></thead><tbody id="downloads"></tbody></table></div>
+    <p class="muted" style="margin:24px 0 48px;font-size:13px">Los testers y descargas se guardan en <span class="code">data/</span> del repo offstage-central (cada cambio queda como commit).</p>
+  </section>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const fmt = (d) => d ? new Date(d).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+let PW = '';
+try { PW = sessionStorage.getItem('osc_admin') || ''; } catch {}
+
+async function api (action, method = 'GET', body) {
+  const r = await fetch(`/api/central/admin?action=${action}`, { method, headers: { 'x-admin-password': PW, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  return { ok: r.ok, status: r.status, data: await r.json().catch(() => ({})) };
+}
+
+function inviteText (t) {
+  return `Hola${t.name ? ' ' + t.name.split(' ')[0] : ''}, ya tienes acceso a la beta privada de OffStage (OffStage Rack + plugins).\n\n` +
+    `Entra en: ${location.origin}\nEmail: ${t.email}\nCódigo: ${t.code}\n\n` +
+    `Descarga la versión de tu sistema y sigue los pasos de "Cómo instalar". Es software beta: no lo compartas fuera del grupo. Cualquier fallo, me escribes con una captura.`;
+}
+
+async function load () {
+  const { ok, status, data } = await api('state');
+  if (!ok) { if (status === 401) { $('#panel').classList.add('hidden'); $('#lock').classList.remove('hidden'); $('#lockErr').textContent = data.error || ''; } return; }
+  $('#lock').classList.add('hidden'); $('#panel').classList.remove('hidden');
+  const dlBy = {}; data.downloads.forEach(d => dlBy[d.email] = (dlBy[d.email] || 0) + 1);
+  const active = data.testers.filter(t => t.active !== false).length;
+  $('#stats').innerHTML = `<span class="stat"><b>${active}</b>testers activos</span><span class="stat"><b>${data.testers.length}</b>invitados</span><span class="stat"><b>${data.downloads.length}</b>descargas recientes</span>`;
+  $('#testers').innerHTML = data.testers.map(t => `<tr>
+    <td>${esc(t.name) || '<span class="muted">—</span>'}</td><td>${esc(t.email)}</td><td class="code">${esc(t.code)}</td>
+    <td class="${t.active === false ? 'off' : 'on'}">${t.active === false ? 'Revocado' : 'Activo'}</td>
+    <td>${fmt(t.lastLogin)}</td><td>${dlBy[t.email] || 0}</td>
+    <td style="white-space:nowrap">
+      <button class="btn small" data-a="copy" data-e="${esc(t.email)}">Copiar invitación</button>
+      <button class="btn small" data-a="toggle" data-e="${esc(t.email)}">${t.active === false ? 'Reactivar' : 'Revocar'}</button>
+      <button class="btn small" data-a="regen" data-e="${esc(t.email)}">Nuevo código</button>
+      <button class="btn small" data-a="remove" data-e="${esc(t.email)}">Borrar</button>
+    </td></tr>`).join('') || '<tr><td colspan="7" class="muted">Aún no hay testers.</td></tr>';
+  $('#testers').querySelectorAll('button').forEach(b => b.onclick = async () => {
+    const t = data.testers.find(x => x.email === b.dataset.e);
+    if (b.dataset.a === 'copy') { await navigator.clipboard.writeText(inviteText(t)); b.textContent = 'Copiado'; return; }
+    if (b.dataset.a === 'remove' && !window.confirm(`¿Borrar a ${t.email}?`)) return;
+    const r = await api(b.dataset.a, 'POST', { email: t.email });
+    if (!r.ok) { window.alert(r.data.error || 'Error'); return; }
+    load();
+  });
+  $('#builds').innerHTML = (data.products || []).map(p => p.error ? `<tr><td colspan="4" class="off">${esc(p.error)}</td></tr>` : `<tr>
+    <td>${esc(p.name)}</td><td>${esc(p.version || '—')}</td>
+    ${['mac', 'win'].map(o => { const pl = p.platforms[o]; return `<td class="${pl && pl.available ? 'on' : 'off'}">${pl && pl.available ? fmt(pl.builtAt) : 'sin build'}</td>`; }).join('')}
+  </tr>`).join('');
+  $('#downloads').innerHTML = data.downloads.map(d => `<tr><td>${fmt(d.ts)}</td><td>${esc(d.email)}</td><td>${esc(d.product)}</td><td>${esc(d.os)}</td><td>${esc(d.version || '—')}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Sin descargas todavía.</td></tr>';
+}
+
+$('#unlock').onclick = () => { PW = $('#pw').value; try { sessionStorage.setItem('osc_admin', PW); } catch {} load(); };
+$('#pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('#unlock').click(); });
+$('#add').onclick = async () => {
+  $('#addErr').textContent = '';
+  const r = await api('add', 'POST', { name: $('#nName').value, email: $('#nEmail').value });
+  if (!r.ok) { $('#addErr').textContent = r.data.error || 'Error'; return; }
+  $('#inviteMsg').value = inviteText(r.data.tester); $('#inviteBox').classList.remove('hidden');
+  $('#nName').value = ''; $('#nEmail').value = ''; load();
+};
+$('#copyInvite').onclick = async () => { await navigator.clipboard.writeText($('#inviteMsg').value); $('#copyInvite').textContent = 'Copiado'; };
+if (PW) load();
+</script>
+</body>
+</html>
