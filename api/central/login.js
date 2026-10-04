@@ -4,7 +4,8 @@ export default async function handler (req, res) {
   if (req.method !== 'POST') return send(res, 405, { error: 'method' });
   const missing = requireEnv(); if (missing) return send(res, 500, { error: 'config', missing });
   const { email, code } = await readJson(req);
-  const t = email && code ? await findTester(email) : null;
+  let t = null;
+  try { t = email && code ? await findTester(email) : null; } catch (e) { console.error(e); return send(res, 502, { error: 'El portal no puede leer la lista de testers ahora mismo. Avisa a OffStage.' }); }
   const ok = t && t.active !== false && safeEqual(String(t.code).toUpperCase(), String(code).trim().toUpperCase());
   if (!ok) {
     await new Promise(r => setTimeout(r, 600));          // slow down guessing

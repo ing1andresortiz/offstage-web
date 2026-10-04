@@ -1,8 +1,12 @@
 import { send, readJson, requireEnv, safeEqual, readData, updateData, normEmail, newCode, getCatalog } from '../../lib/central/core.js';
 
 export default async function handler (req, res) {
+  try { return await main(req, res); } catch (e) { return send(res, 502, { error: String(e.message || e) }); }
+}
+
+async function main (req, res) {
   const missing = requireEnv(); if (missing) return send(res, 500, { error: 'config', missing });
-  if (!safeEqual(req.headers['x-admin-password'], process.env.ADMIN_PASSWORD)) {
+  if (!safeEqual(String(req.headers['x-admin-password'] || '').trim(), String(process.env.ADMIN_PASSWORD || '').trim())) {
     await new Promise(r => setTimeout(r, 600));
     return send(res, 401, { error: 'Contraseña de admin incorrecta.' });
   }
