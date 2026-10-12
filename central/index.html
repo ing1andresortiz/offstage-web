@@ -51,6 +51,14 @@
   ul.changes { list-style: none; margin: 0; padding: 0; font-size: 13px; color: #d8d2cb; }
   ul.changes li { padding: 6px 0; border-bottom: 1px dashed #222; display: flex; gap: 10px; }
   ul.changes time { color: var(--dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .quick { margin-top: 18px; background: #0d0d0d; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .quick h3 { margin: 0 0 4px; font: 700 12px 'DM Sans'; letter-spacing: 1.4px; color: var(--cream); text-transform: uppercase; }
+  .quick h3 b { color: var(--ok); font-weight: 700; }
+  .quick p { margin: 0 0 12px; color: var(--dim); font-size: 14px; line-height: 1.5; }
+  .quick .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .cmd { display: flex; gap: 8px; align-items: stretch; margin-top: 12px; }
+  .cmd code { flex: 1; min-width: 0; font-family: ui-monospace, Menlo, monospace; font-size: 12px; background: #000; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; color: var(--cream); overflow-x: auto; white-space: nowrap; }
+  .quick ol { margin-top: 12px; }
   .login { max-width: 420px; margin: 8vh auto; }
   .login h1 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 52px; margin: 0 0 6px; line-height: .95; }
   .login p { color: var(--dim); margin: 0 0 22px; line-height: 1.5; }
@@ -94,7 +102,7 @@
       <h1>Herramientas para el directo</h1>
       <p>Aquí está siempre la última versión de OffStage Rack y de los plugins OffStage para Mac y Windows. Te mostramos primero la descarga para tu sistema.</p>
     </div>
-    <div class="note">Son versiones beta sin firma de Apple ni de Microsoft: la primera vez el sistema pedirá permiso para abrirlas. Sigue los pasos de "Cómo instalar" de cada producto. Si algo falla, escribe a <a href="mailto:andres@weareoffstage.pro">andres@weareoffstage.pro</a> con tu sistema operativo, el host y una captura.</div>
+    <div class="note">Usa la <b>Instalación rápida</b> de cada producto: un comando que instala sin avisos de seguridad. Si prefieres descargar el archivo, sigue la "Instalación manual" (al ser beta sin firma, el sistema pedirá permiso la primera vez). Si algo falla, escribe a <a href="mailto:andres@weareoffstage.pro">andres@weareoffstage.pro</a> con tu sistema operativo, el host y una captura.</div>
     <div class="grid" id="products"><div class="card muted">Cargando catálogo…</div></div>
   </section>
 </main>
@@ -141,9 +149,15 @@ function productCard (p) {
       <div class="ver">${p.version ? `Versión <b>${esc(p.version)}</b> · ` : ''}build del ${esc(fmtDate(p.builtAt)) || '—'}</div>
     </div></div>
     <p class="tag">${esc(p.tagline)}</p>
+    <div class="quick" data-id="${esc(p.id)}">
+      <h3>Instalación rápida <b>· recomendada</b></h3>
+      <p>Se instala con un solo comando, sin avisos de seguridad de macOS ni de Windows. El comando es personal y caduca en 30 minutos.</p>
+      <div class="row">${order.filter(o => p.platforms[o] && p.platforms[o].available).map((o, i) => `<button class="btn small ${i === 0 ? 'primary' : ''}" data-quick="${o}">Comando para ${OS_NAME[o]}</button>`).join('') || '<span class="muted">Aún no hay build disponible.</span>'}</div>
+      <div class="qout"></div>
+    </div>
     <div class="dl">${btns}</div>
     <div class="tabs">
-      <div><h3>Cómo instalar</h3>
+      <div><h3>Instalación manual</h3>
         <div class="seg">${order.map(o => `<button data-os="${o}" class="${o === order[0] ? 'on' : ''}">${OS_NAME[o]}</button>`).join('')}</div>
         ${order.map(o => `<div class="guide ${o === order[0] ? '' : 'hidden'}" data-os="${o}">${guide(o)}</div>`).join('')}
       </div>
@@ -157,11 +171,31 @@ async function loadCatalog () {
   if (status === 401) return showLogin();
   if (!ok) { $('#products').innerHTML = `<div class="card">No se pudo cargar el catálogo. ${esc(data.error || '')}</div>`; return; }
   $('#products').innerHTML = data.products.map(productCard).join('');
+  document.querySelectorAll('[data-quick]').forEach(b => b.addEventListener('click', () => quick(b)));
   document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
     const card = b.closest('.card');
     card.querySelectorAll('.seg button').forEach(x => x.classList.toggle('on', x === b));
     card.querySelectorAll('.guide').forEach(g => g.classList.toggle('hidden', g.dataset.os !== b.dataset.os));
   }));
+}
+
+const QUICK_STEPS = {
+  mac: ['Pulsa <b>Copiar</b>.', 'Abre <b>Terminal</b>: Cmd + Espacio, escribe "Terminal" y pulsa Enter.', 'Pega el comando (Cmd + V) y pulsa <b>Enter</b>.', 'Escribe la contraseña de tu Mac cuando te la pida (no se ve al escribir) y pulsa Enter. En un minuto está instalado.'],
+  win: ['Pulsa <b>Copiar</b>.', 'Clic derecho en el botón <b>Inicio</b> → <b>Terminal</b> (o "Windows PowerShell").', 'Pega el comando (clic derecho o Ctrl + V) y pulsa <b>Enter</b>.', 'Cuando Windows pregunte si permites cambios, pulsa <b>Sí</b>. En un minuto está instalado.']
+};
+async function quick (b) {
+  const box = b.closest('.quick'), os = b.dataset.quick, out = box.querySelector('.qout');
+  box.querySelectorAll('[data-quick]').forEach(x => x.classList.toggle('primary', x === b));
+  out.innerHTML = '<p class="muted" style="margin-top:12px">Generando…</p>';
+  const { ok, status, data } = await api('/api/central/install', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product: box.dataset.id, os }) });
+  if (status === 401) return showLogin();
+  if (!ok) { out.innerHTML = `<p class="err">${esc(data.error || 'No se pudo generar el comando.')}</p>`; return; }
+  out.innerHTML = `<div class="cmd"><code>${esc(data.command)}</code><button class="btn small primary">Copiar</button></div><ol>${QUICK_STEPS[os].map(s => `<li>${s}</li>`).join('')}</ol>`;
+  const btn = out.querySelector('button');
+  btn.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(data.command); } catch { const r = document.createRange(); r.selectNodeContents(out.querySelector('code')); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); }
+    btn.textContent = 'Copiado ✓';
+  });
 }
 
 $('#loginForm').addEventListener('submit', async (e) => {
