@@ -1,4 +1,7 @@
 import { send, readJson, requireEnv, safeEqual, readData, updateData, normEmail, newCode, getCatalog } from '../../lib/central/core.js';
+import { sendInvite } from '../../lib/central/mail.js';
+
+const siteOf = (req) => process.env.SITE_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host || 'weareoffstage.pro'}`;
 
 export default async function handler (req, res) {
   try { return await main(req, res); } catch (e) { return send(res, 502, { error: String(e.message || e) }); }
@@ -32,7 +35,9 @@ async function main (req, res) {
         return [...list, created];
       }, `data: invite ${email}`);
       if (!created) return send(res, 409, { error: 'Ese email ya está invitado.' });
-      return send(res, 200, { tester: created });
+      const mail = body.sendEmail === false ? { sent: false, skipped: true } : await sendInvite(created, siteOf(req));
+      if (mail.sent) await markEmailed(email);
+      return send(res, 200, { tester: created, mail });
     }
     if (action === 'toggle' || action === 'regen' || action === 'remove') {
       let found = false, updated = null;
@@ -48,8 +53,25 @@ async function main (req, res) {
         return out;
       }, `data: ${action} ${email}`);
       if (!found) return send(res, 404, { error: 'No existe ese tester.' });
-      return send(res, 200, { tester: updated, removed: action === 'remove' });
+      let mail;
+      if (action === 'regen' && body.sendEmail !== false) { mail = await sendInvite(updated, siteOf(req)); if (mail.sent) await markEmailed(email); }
+      return send(res, 200, { tester: updated, removed: action === 'remove', mail });
+    }
+    if (action === 'send') {
+      const { data } = await readData('testers');
+      const t = data.find(x => normEmail(x.email) === email);
+      if (!t) return send(res, 404, { error: 'No existe ese tester.' });
+      if (t.active === false) return send(res, 400, { error: 'Ese tester está revocado: reactívalo antes de enviarle la invitación.' });
+      const mail = await sendInvite(t, siteOf(req));
+      if (mail.sent) await markEmailed(email);
+      return send(res, mail.sent ? 200 : 502, { tester: t, mail, error: mail.sent ? undefined : mail.error });
     }
   }
   return send(res, 400, { error: 'acción no válida' });
+}
+
+async function markEmailed (email) {
+  try {
+    await updateData('testers', list => list.map(t => normEmail(t.email) === email ? { ...t, emailedAt: new Date().toISOString() } : t), `data: emailed ${email}`);
+  } catch { /* the email went out even if the timestamp can't be stored */ }
 }
