@@ -40,6 +40,12 @@
   .pick input { min-width: 0; width: 18px; height: 18px; padding: 0; margin: 0; accent-color: var(--red); }
   .chip { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; margin: 2px 4px 2px 0; font: 600 11px 'DM Sans'; background: #0d0d0d; color: #6d6863; cursor: pointer; white-space: nowrap; }
   .chip.on { border-color: #2f6b45; background: #0d1a12; color: var(--ok); }
+  .wait { color: #f2b54a; }
+  .tagweb { display: inline-block; margin-left: 6px; font: 700 10px 'DM Sans'; letter-spacing: 1px; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+  .su { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; padding: 6px 0; }
+  .su + .su { border-top: 1px solid #1d1d1d; }
+  .su b { font-family: 'Bebas Neue'; font-size: 30px; font-weight: 400; line-height: 1; }
+  .su input { min-width: 0; width: 90px; }
 </style>
 </head>
 <body>
@@ -54,6 +60,9 @@
   <section id="panel" class="hidden">
     <h2>Resumen</h2>
     <div class="card" id="stats"></div>
+
+    <h2>Altas desde la web</h2>
+    <div class="card" id="signup"><span class="muted">Cargando…</span></div>
 
     <h2>Invitar tester</h2>
     <div class="card">
@@ -125,18 +134,44 @@ async function load () {
   const dlBy = {}; data.downloads.forEach(d => dlBy[d.email] = (dlBy[d.email] || 0) + 1);
   const active = data.testers.filter(t => t.active !== false).length;
   $('#stats').innerHTML = `<span class="stat"><b>${active}</b>testers activos</span><span class="stat"><b>${data.testers.length}</b>invitados</span><span class="stat"><b>${data.downloads.length}</b>descargas recientes</span>`;
+  $('#signup').innerHTML = (data.signup || []).map(g => `<div class="su">
+      <div><span class="muted" style="font-size:12px;letter-spacing:1px">${esc(g.name.toUpperCase())}</span><br><b>${g.used}</b> / ${g.cap} con acceso automático</div>
+      <div><label for="cap_${esc(g.id)}">Cupo</label><input id="cap_${esc(g.id)}" type="number" min="0" value="${g.cap}"> <button class="btn small" data-cap="${esc(g.id)}">Guardar</button></div>
+      <div><b class="${g.pending ? 'wait' : ''}">${g.pending}</b> en espera ${g.pending ? `<button class="btn small primary" data-approveall="${esc(g.id)}">Aprobar en espera (hasta 10)</button>` : ''}</div>
+      <div class="muted" style="font-size:13px;max-width:420px">${g.ready
+        ? 'Quien se apunta en weareoffstage.pro recibe su código al momento mientras haya cupo; después queda en espera y te llega un aviso.'
+        : '<span class="off">Aún no está conectado (falta FIREBASE_SERVICE_ACCOUNT en Vercel):</span> las altas quedan en espera hasta entonces.'}</div>
+    </div>`).join('') || '<span class="muted">Ningún producto admite altas desde la web.</span>';
+  $('#signup').querySelectorAll('[data-cap]').forEach(b => b.onclick = async () => {
+    const v = $(`#cap_${b.dataset.cap}`).value;
+    b.disabled = true; b.textContent = '…';
+    const r = await api('cap', 'POST', { product: b.dataset.cap, cap: Number(v) });
+    if (!r.ok) window.alert(r.data.error || 'Error');
+    load();
+  });
+  $('#signup').querySelectorAll('[data-approveall]').forEach(b => b.onclick = async () => {
+    if (!window.confirm('¿Dar acceso a los que están en espera (hasta 10) y enviarles su código por email?')) return;
+    b.disabled = true; b.textContent = 'Aprobando…';
+    const r = await api('approveAll', 'POST', { product: b.dataset.approveall, limit: 10 });
+    if (!r.ok) window.alert(r.data.error || 'Error');
+    else { const bad = (r.data.results || []).filter(x => !x.sent); window.alert(`${r.data.approved} con acceso.` + (bad.length ? ` Sin email (reenvíalo luego): ${bad.map(x => x.email).join(', ')}` : '')); }
+    load();
+  });
   $('#testers').innerHTML = data.testers.map(t => `<tr>
-    <td>${esc(t.name) || '<span class="muted">—</span>'}</td><td>${esc(t.email)}</td><td class="code">${esc(t.code)}</td>
-    <td class="${t.active === false ? 'off' : 'on'}">${t.active === false ? 'Revocado' : 'Activo'}</td>
+    <td>${esc(t.name) || '<span class="muted">—</span>'}${t.source === 'web' ? '<span class="tagweb">WEB</span>' : ''}</td><td>${esc(t.email)}</td><td class="code">${esc(t.code)}</td>
+    <td class="${t.pending ? 'wait' : t.active === false ? 'off' : 'on'}">${t.pending ? 'En espera' : t.active === false ? 'Revocado' : 'Activo'}${!t.pending && Array.isArray(t.wants) && t.wants.length ? `<br><span class="wait" style="font-size:12px">pide ${esc(t.wants.join(', '))}</span>` : ''}</td>
     <td style="min-width:170px">${PRODS.map(p => `<span class="chip ${accessOf(t).includes(p.id) ? 'on' : ''}" title="Pulsa para dar o quitar acceso" data-acc="${esc(p.id)}" data-e="${esc(t.email)}">${esc(p.name.replace(/^OffStage /, ''))}</span>`).join('')}</td>
     <td>${fmt(t.emailedAt)}</td><td>${fmt(t.lastLogin)}</td><td>${dlBy[t.email] || 0}</td>
-    <td style="white-space:nowrap">
+    <td style="white-space:nowrap">${(t.pending || (Array.isArray(t.wants) && t.wants.length)) ? `
+      <button class="btn small primary" data-a="approve" data-e="${esc(t.email)}">Aprobar</button>` : ''}${t.pending ? `
+      <button class="btn small" data-a="remove" data-e="${esc(t.email)}">Borrar</button>
+    </td></tr>` : `
       <button class="btn small" data-a="send" data-e="${esc(t.email)}">Reenviar email</button>
       <button class="btn small" data-a="copy" data-e="${esc(t.email)}">Copiar invitación</button>
       <button class="btn small" data-a="toggle" data-e="${esc(t.email)}">${t.active === false ? 'Reactivar' : 'Revocar'}</button>
       <button class="btn small" data-a="regen" data-e="${esc(t.email)}">Nuevo código</button>
       <button class="btn small" data-a="remove" data-e="${esc(t.email)}">Borrar</button>
-    </td></tr>`).join('') || '<tr><td colspan="9" class="muted">Aún no hay testers.</td></tr>';
+    </td></tr>`}`).join('') || '<tr><td colspan="9" class="muted">Aún no hay testers.</td></tr>';
   $('#testers').querySelectorAll('[data-acc]').forEach(c => c.onclick = async () => {
     const t = data.testers.find(x => x.email === c.dataset.e);
     const cur = accessOf(t), id = c.dataset.acc;
@@ -151,6 +186,7 @@ async function load () {
     const t = data.testers.find(x => x.email === b.dataset.e);
     if (b.dataset.a === 'copy') { await navigator.clipboard.writeText(inviteText(t)); b.textContent = 'Copiado'; return; }
     if (b.dataset.a === 'remove' && !window.confirm(`¿Borrar a ${t.email}?`)) return;
+    if (b.dataset.a === 'approve' && !window.confirm(`¿Dar acceso a ${t.email}? Le llega su código por email.`)) return;
     if (b.dataset.a === 'regen' && !window.confirm(`¿Nuevo código para ${t.email}? El anterior deja de funcionar y se le envía el nuevo por email.`)) return;
     b.disabled = true; const label = b.textContent; b.textContent = '…';
     const r = await api(b.dataset.a, 'POST', { email: t.email });
