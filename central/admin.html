@@ -107,13 +107,14 @@ async function api (action, method = 'GET', body) {
 let PRODS = [];                                          // catálogo (para las casillas de acceso)
 const accessOf = (t) => Array.isArray(t.products) ? t.products : PRODS.map(p => p.id);   // sin campo = todo
 
+const b64url = (x) => btoa(unescape(encodeURIComponent(x))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 function inviteText (t) {
   const ids = accessOf(t), list = PRODS.filter(p => ids.includes(p.id));
   const apps = list.filter(p => !p.web), td = list.some(p => p.id === 'tourdesk');
   const appsTxt = apps.length === PRODS.filter(p => !p.web).length ? 'OffStage Rack + plugins' : apps.map(p => p.name).join(', ');
   const what = !td ? appsTxt : !apps.length ? 'TourDesk' : `${appsTxt} y TourDesk`;
   return `Hola${t.name ? ' ' + t.name.split(' ')[0] : ''}, ya tienes acceso a la beta privada de OffStage (${what}).\n\n` +
-    `Entra en: ${location.origin}/central/\nEmail: ${t.email}\nCódigo: ${t.code}\n\n` +
+    `Entra directo: ${location.origin}/central/#acceso=${b64url(t.email + ':' + t.code)}\n\nO entra en ${location.origin}/central/ con:\nEmail: ${t.email}\nCódigo: ${t.code}\n\n` +
     (apps.length ? `Descarga la versión de tu sistema y sigue los pasos de "Cómo instalar". Es software beta: no lo compartas fuera del grupo. Cualquier fallo, me escribes con una captura.` : '') +
     (apps.length && td ? '\n\n' : '') +
     (td ? `TourDesk: en la central pulsa "Abrir TourDesk". En el móvil también puedes abrir tourdesk-pro.vercel.app y entrar con "Tengo invitación a la beta" con este email y código.` : '');

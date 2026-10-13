@@ -91,6 +91,7 @@
     <div class="beta">BETA PRIVADA</div>
     <h1>Acceso de beta testers</h1>
     <p>Entra con el email y el código de invitación que te envió OffStage.</p>
+    <div class="note hidden" id="altaNote" style="margin:0 0 18px"></div>
     <form id="loginForm" autocomplete="on">
       <label for="email">Email</label>
       <input id="email" type="email" required autocomplete="email" placeholder="tu@email.com">
@@ -141,7 +142,40 @@ const TD_MSG = {
   error: 'No se pudo abrir TourDesk ahora mismo. Inténtalo de nuevo en un momento.'
 };
 
-function showLogin () { $('#loginView').classList.remove('hidden'); $('#appView').classList.add('hidden'); $('#user').classList.add('hidden'); }
+// Llegada desde el formulario de la web (#alta=estado) o desde el botón del email (#acceso=…, entra directo).
+// El código nunca viaja al servidor en la URL: va en el # y se borra al instante.
+const HASH = location.hash || '';
+const ALTA = decodeURIComponent((HASH.match(/[#&]alta=(\w+)/) || [])[1] || '');
+const ACCESO = (HASH.match(/[#&]acceso=([\w-]+)/) || [])[1] || '';
+if (HASH) history.replaceState(null, '', location.pathname + location.search);
+let ALTA_INFO = {};
+try { ALTA_INFO = JSON.parse(sessionStorage.getItem('osc_alta') || '{}') || {}; sessionStorage.removeItem('osc_alta'); } catch {}
+const ALTA_MSG = {
+  granted: (e, mailed) => mailed === false
+    ? `<b>¡Tienes plaza en la beta!</b> En unos minutos te llega tu código de invitación${e ? ` a <b>${esc(e)}</b>` : ''}. Cuando lo tengas, pégalo aquí para entrar.`
+    : `<b>¡Tienes plaza en la beta!</b> Te enviamos tu código de invitación${e ? ` a <b>${esc(e)}</b>` : ''}. Abre ese email y pulsa <b>Entrar a OffStage Central</b>, o pega aquí el código.`,
+  exists: (e) => `Ya tenías acceso: tu código está en tu email${e ? ` (<b>${esc(e)}</b>)` : ''}. Pégalo aquí para entrar.`,
+  waitlist: () => '<b>Estás en la lista de espera.</b> Cuando se abra tu plaza te llega tu código por email y entras desde aquí.',
+  pending: () => '<b>Ya estás en la lista de espera.</b> Cuando se abra tu plaza te llega tu código por email y entras desde aquí.'
+};
+function decodeAcceso (v) {
+  try {
+    const raw = atob(v.replace(/-/g, '+').replace(/_/g, '/'));
+    const txt = decodeURIComponent(Array.from(raw, ch => '%' + ch.charCodeAt(0).toString(16).padStart(2, '0')).join(''));
+    const i = txt.lastIndexOf(':');
+    return i > 0 ? { email: txt.slice(0, i), code: txt.slice(i + 1) } : null;
+  } catch { return null; }
+}
+
+function showLogin () {
+  $('#loginView').classList.remove('hidden'); $('#appView').classList.add('hidden'); $('#user').classList.add('hidden');
+  const st = ALTA || ALTA_INFO.status;
+  if (ALTA_MSG[st]) {
+    $('#altaNote').innerHTML = ALTA_MSG[st](ALTA_INFO.email, ALTA_INFO.mailed); $('#altaNote').classList.remove('hidden');
+    if (ALTA_INFO.email && !$('#email').value) $('#email').value = ALTA_INFO.email;
+    if (st === 'granted' || st === 'exists') setTimeout(() => $('#code').focus(), 50);
+  }
+}
 function showApp (me) {
   $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden');
   $('#user').classList.remove('hidden'); $('#userEmail').textContent = me.name ? `${me.name} · ${me.email}` : me.email;
@@ -255,6 +289,15 @@ $('#loginForm').addEventListener('submit', async (e) => {
 $('#logout').addEventListener('click', async () => { await api('/api/central/logout', { method: 'POST' }); showLogin(); });
 
 (async () => {
+  const acc = ACCESO && decodeAcceso(ACCESO);
+  if (acc && acc.email && acc.code) {
+    $('#email').value = acc.email; $('#code').value = acc.code;
+    const { ok, data } = await api('/api/central/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(acc) });
+    if (ok) return showApp(data);
+    showLogin(); $('#code').value = '';
+    $('#loginErr').textContent = 'Ese enlace ya no vale (puede que tu código haya cambiado). Usa el código de tu último email de OffStage.';
+    return;
+  }
   const { ok, data } = await api('/api/central/me');
   ok ? showApp(data) : showLogin();
 })();
