@@ -70,6 +70,12 @@
   footer { border-top: 1px solid var(--line); color: var(--dim); font-size: 13px; padding: 22px 0 40px; }
   .muted { color: var(--dim); }
   .hidden { display: none !important; }
+  .card.web { border-color: #3a2020; background: linear-gradient(180deg, #171010 0%, var(--panel) 55%); }
+  .card.web .kind b { color: var(--black); background: var(--red); font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px; letter-spacing: 1px; }
+  ul.hl { list-style: none; margin: 0; padding: 0; font-size: 14px; color: #d8d2cb; }
+  ul.hl li { padding: 6px 0; border-bottom: 1px dashed #222; display: flex; gap: 10px; line-height: 1.45; }
+  ul.hl li::before { content: '✓'; color: var(--ok); font-weight: 700; }
+  .btn.busy { opacity: .7; pointer-events: none; }
   @media (max-width: 760px) { .tabs { grid-template-columns: 1fr; } .dl .btn { min-width: 100%; } .user span { display: none; } }
 </style>
 </head>
@@ -100,9 +106,10 @@
     <div class="hero">
       <div class="beta">BETA PRIVADA</div>
       <h1>Herramientas para el directo</h1>
-      <p>Aquí está siempre la última versión de OffStage Rack y de los plugins OffStage para Mac y Windows. Te mostramos primero la descarga para tu sistema.</p>
+      <p>Aquí tienes siempre la última versión de las herramientas OffStage de tu invitación. Si hay descarga, te mostramos primero la de tu sistema.</p>
     </div>
-    <div class="note">Usa la <b>Instalación rápida</b> de cada producto: un comando que instala sin avisos de seguridad. Si prefieres descargar el archivo, sigue la "Instalación manual" (al ser beta sin firma, el sistema pedirá permiso la primera vez). Si algo falla, escribe a <a href="mailto:andres@weareoffstage.pro">andres@weareoffstage.pro</a> con tu sistema operativo, el host y una captura.</div>
+    <div class="note hidden" id="tdNote" style="margin-bottom:12px"></div>
+    <div class="note hidden" id="dlNote">Usa la <b>Instalación rápida</b> de cada producto: un comando que instala sin avisos de seguridad. Si prefieres descargar el archivo, sigue la "Instalación manual" (al ser beta sin firma, el sistema pedirá permiso la primera vez). Si algo falla, escribe a <a href="mailto:andres@weareoffstage.pro">andres@weareoffstage.pro</a> con tu sistema operativo, el host y una captura.</div>
     <div class="grid" id="products"><div class="card muted">Cargando catálogo…</div></div>
   </section>
 </main>
@@ -125,14 +132,45 @@ async function api (path, opts) {
   return { ok: r.ok, status: r.status, data: j };
 }
 
+// Vuelta desde "Abrir TourDesk" (/api/central/tourdesk → /central/?td=…)
+const TD_FLAG = new URLSearchParams(location.search).get('td');
+if (TD_FLAG) history.replaceState(null, '', location.pathname);
+const TD_MSG = {
+  noaccess: 'Tu invitación no incluye TourDesk. Si quieres probarlo, escribe a <a href="mailto:andres@weareoffstage.pro">andres@weareoffstage.pro</a>.',
+  config: 'TourDesk se está terminando de conectar con la central. Vuelve a intentarlo en un rato.',
+  error: 'No se pudo abrir TourDesk ahora mismo. Inténtalo de nuevo en un momento.'
+};
+
 function showLogin () { $('#loginView').classList.remove('hidden'); $('#appView').classList.add('hidden'); $('#user').classList.add('hidden'); }
 function showApp (me) {
   $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden');
   $('#user').classList.remove('hidden'); $('#userEmail').textContent = me.name ? `${me.name} · ${me.email}` : me.email;
+  if (TD_MSG[TD_FLAG]) { $('#tdNote').innerHTML = TD_MSG[TD_FLAG]; $('#tdNote').classList.remove('hidden'); }
   loadCatalog();
 }
 
+// Apps web (TourDesk): sin descarga, el botón entra directo con la sesión de la central
+function webCard (p) {
+  const steps = (p.guide && p.guide.web) || [];
+  return `<article class="card web" data-id="${esc(p.id)}">
+    <div class="card-top"><div>
+      <div class="kind">${esc(p.kind)}<b>NUEVO</b></div>
+      <h2>${esc(p.name)}</h2>
+      <div class="ver">Siempre la última versión · no hay que instalar nada</div>
+    </div></div>
+    <p class="tag">${esc(p.tagline)}</p>
+    <div class="dl">${p.web.ready === false
+      ? `<a class="btn" aria-disabled="true">Muy pronto<small>Estamos activando ${esc(p.name)} en la central</small></a>`
+      : `<a class="btn primary" data-open href="/api/central/${encodeURIComponent(p.id)}">Abrir ${esc(p.name)}<small>${esc(p.web.label)}</small></a>`}</div>
+    <div class="tabs">
+      <div><h3>Cómo empezar</h3><ol>${steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>
+      <div><h3>Qué incluye</h3><ul class="hl">${(p.highlights || []).map(h => `<li><span>${esc(h)}</span></li>`).join('')}</ul></div>
+    </div>
+  </article>`;
+}
+
 function productCard (p) {
+  if (p.web) return webCard(p);
   const order = [OS, OS === 'mac' ? 'win' : 'mac'].filter(o => p.platforms[o] || (p.guide && p.guide[o]));
   const btns = order.map((o, i) => {
     const pl = p.platforms[o];
@@ -170,7 +208,13 @@ async function loadCatalog () {
   const { ok, status, data } = await api('/api/central/catalog');
   if (status === 401) return showLogin();
   if (!ok) { $('#products').innerHTML = `<div class="card">No se pudo cargar el catálogo. ${esc(data.error || '')}</div>`; return; }
-  $('#products').innerHTML = data.products.map(productCard).join('');
+  $('#products').innerHTML = data.products.map(productCard).join('') || '<div class="card muted">Tu invitación aún no tiene productos activos. Escribe a andres@weareoffstage.pro.</div>';
+  $('#dlNote').classList.toggle('hidden', !data.products.some(p => !p.web));
+  document.querySelectorAll('[data-open]').forEach(a => a.addEventListener('click', () => {
+    const label = a.firstChild.textContent;
+    a.classList.add('busy'); a.firstChild.textContent = 'Abriendo… ';
+    setTimeout(() => { a.classList.remove('busy'); a.firstChild.textContent = label; }, 8000);
+  }));
   document.querySelectorAll('[data-quick]').forEach(b => b.addEventListener('click', () => quick(b)));
   document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
     const card = b.closest('.card');
@@ -205,6 +249,7 @@ $('#loginForm').addEventListener('submit', async (e) => {
     body: JSON.stringify({ email: $('#email').value, code: $('#code').value }) });
   $('#loginBtn').disabled = false; $('#loginBtn').textContent = 'Entrar';
   if (!ok) { $('#loginErr').textContent = data.error || 'No se pudo entrar.'; return; }
+  if (TD_FLAG === 'login') { location.href = '/api/central/tourdesk'; return; }   // venía de "Abrir TourDesk" con la sesión caducada
   showApp(data);
 });
 $('#logout').addEventListener('click', async () => { await api('/api/central/logout', { method: 'POST' }); showLogin(); });
