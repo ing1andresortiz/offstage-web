@@ -419,7 +419,7 @@ setTimeout(go,2600);})();
         <button class="tdk-btn" type="submit"><span id="td_cta">Solicitar acceso</span> <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5h10M8 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <input type="text" name="_honey2" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true"/>
       </form>
-      <div class="tdk-sub"><span id="td_note">Plazas limitadas: te llega el acceso a tu email. Solo lo usamos para la beta.</span> · <a href="https://tourdesk-pro.vercel.app/?beta" id="td_have">¿Ya tienes acceso? Entrar</a></div>
+      <div class="tdk-sub"><span id="td_note">Plazas limitadas: te llega el acceso a tu email. Solo lo usamos para la beta.</span> · <a href="/central/" id="td_have">¿Ya tienes acceso? Entrar</a></div>
     </div>
   </div>
 </section>
@@ -850,6 +850,11 @@ function handleTDRequest(e){
   var btn=form.querySelector('.tdk-btn'), span=btn?btn.querySelector('#td_cta'):null;
   if(btn)btn.disabled=true; if(span) span.textContent=lang==='es'?'Enviando…':'Sending…';
   function done(k){ form.innerHTML='<div class="tdk-ok">'+tdMsg(k,email)+'</div>'; }
+  function toCentral(k,mailed){   // la central muestra su estado y le deja el email puesto para entrar con el código
+    try{ sessionStorage.setItem('osc_alta',JSON.stringify({email:email,status:k,mailed:mailed!==false,at:Date.now()})); }catch(e3){}
+    form.innerHTML='<div class="tdk-ok">'+tdMsg(k,email)+'<br><span style="opacity:.8">'+(lang==='es'?'Te llevamos a OffStage Central…':'Taking you to OffStage Central…')+'</span></div>';
+    setTimeout(function(){ location.href='/central/#alta='+encodeURIComponent(k); },1800);
+  }
   function retry(){ if(span) span.textContent=lang==='es'?'Reintenta':'Retry'; if(btn)btn.disabled=false; }
   function planB(){   // la central no respondió: que la solicitud no se pierda
     return fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
@@ -863,7 +868,7 @@ function handleTDRequest(e){
       if(r.status===400){ retry(); var n=document.getElementById('td_note'); if(n) n.textContent=tdMsg('bad',email); return; }
       if(!r.ok||!j.status) return planB();
       if(j.status==='granted'||j.status==='waitlist'){ try{ bumpCount(); }catch(e2){} }  // el contador solo guarda un número
-      done(j.status);
+      toCentral(j.status,j.mailed);
     });
   }).catch(planB);
 }
