@@ -419,7 +419,7 @@ setTimeout(go,2600);})();
         <button class="tdk-btn" type="submit"><span id="td_cta">Solicitar acceso</span> <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5h10M8 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <input type="text" name="_honey2" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true"/>
       </form>
-      <div class="tdk-sub"><span id="td_note">Sé de los primeros en probarlo cuando abramos.</span> · <a href="https://tourdesk-pro.vercel.app" id="td_have">¿Ya tienes acceso? Entrar</a></div>
+      <div class="tdk-sub"><span id="td_note">Plazas limitadas: te llega el acceso a tu email. Solo lo usamos para la beta.</span> · <a href="https://tourdesk-pro.vercel.app/?beta" id="td_have">¿Ya tienes acceso? Entrar</a></div>
     </div>
   </div>
 </section>
@@ -660,7 +660,7 @@ const T={
     nentrar:'Enter',td_badge:'New',td_lbl:'Our Product',
     td_tag:'The software we built to run tours without the chaos.',
     td_body:'Dates, day sheets, travel, guest list, crew and finances — all in one place, even offline. Built by touring pros, for touring pros.',
-    td_cta:'Request access',td_note:'Be first to try it when we launch.',td_have:'Already have access? Enter',
+    td_cta:'Request access',td_note:'Limited spots: your access arrives by email. We only use it for the beta.',td_have:'Already have access? Enter',
     td_chips:['Shows','Day Sheets','Travel','Guest List','Finances','Offline'],
     tm0:'The People',tm1:'Who We Are',
     tm2:'Colombian sound engineer based in Spain.',
@@ -696,7 +696,7 @@ const T={
     nentrar:'Entrar',td_badge:'Nuevo',td_lbl:'Nuestro producto',
     td_tag:'El software que construimos para producir giras sin caos.',
     td_body:'Fechas, day sheets, viajes, guest list, equipo y cuentas — todo en un solo lugar, y hasta sin señal. Hecho por gente de gira, para gente de gira.',
-    td_cta:'Solicitar acceso',td_note:'Sé de los primeros en probarlo cuando abramos.',td_have:'¿Ya tienes acceso? Entrar',
+    td_cta:'Solicitar acceso',td_note:'Plazas limitadas: te llega el acceso a tu email. Solo lo usamos para la beta.',td_have:'¿Ya tienes acceso? Entrar',
     td_chips:['Shows','Day Sheets','Viajes','Guest List','Finanzas','Offline'],
     tm0:'El Equipo',tm1:'Quiénes Somos',
     tm2:'Ingeniero de sonido colombiano basado en España.',
@@ -829,7 +829,18 @@ function handleForm(e){
   });
 }
 
-// TOURDESK — solicitud de acceso (lista de espera)
+// TOURDESK — solicitud de acceso: alta automática en OffStage Central (con cupo).
+// Si hay cupo, le llega su código por email al momento; si no, queda en espera.
+// Plan B: si la central no responde, la solicitud llega igualmente a tu email (Web3Forms).
+var TD_T0=Date.now();
+var TD_MSG={
+  granted:{es:'✓ ¡Estás dentro! Te enviamos tu acceso a {e}. Revisa tu email (y la carpeta de spam).',en:'✓ You’re in! We sent your access to {e}. Check your inbox (and spam).'},
+  exists:{es:'✓ Ya tenías acceso: revisa tu email, ahí está tu código para entrar.',en:'✓ You already have access: check your inbox for your code.'},
+  waitlist:{es:'✓ Estás en la lista de espera. Te escribimos en cuanto se abra tu plaza.',en:'✓ You’re on the waitlist. We’ll email you as soon as your spot opens.'},
+  pending:{es:'✓ Ya estás en la lista de espera. Te escribimos en cuanto se abra tu plaza.',en:'✓ You’re already on the waitlist. We’ll email you as soon as your spot opens.'},
+  bad:{es:'Ese email no parece válido. Revísalo.',en:'That email doesn’t look valid.'}
+};
+function tdMsg(k,email){ var m=TD_MSG[k]||TD_MSG.waitlist; var t=lang==='es'?m.es:m.en; return t.replace('{e}',String(email).replace(/[<>&"']/g,'')); }
 function handleTDRequest(e){
   e.preventDefault();
   var form=e.target;
@@ -838,24 +849,23 @@ function handleTDRequest(e){
   var email=(inp.value||'').trim(); if(!email) return;
   var btn=form.querySelector('.tdk-btn'), span=btn?btn.querySelector('#td_cta'):null;
   if(btn)btn.disabled=true; if(span) span.textContent=lang==='es'?'Enviando…':'Sending…';
-  // La solicitud llega al inbox por Web3Forms (privado y confiable). Nada de datos personales en sitios públicos.
-  fetch('https://api.web3forms.com/submit',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body: JSON.stringify({
-      access_key:'d131dcb4-a573-47da-8238-b4cf1ebf4aef',
-      subject:'TourDesk — Nueva solicitud de acceso',
-      from_name:'TourDesk · OffStage',
-      email:email,
-      mensaje:'Nueva solicitud de acceso a TourDesk desde weareoffstage.pro'
-    })
-  }).then(function(r){return r.json();}).then(function(data){
-    if(!data||!data.success) throw new Error('w3f');
-    try{ bumpCount(); }catch(e2){}   // solo sube el contador (número), sin datos personales
-    form.innerHTML='<div class="tdk-ok">'+(lang==='es'?'✓ Estás en la lista. Te avisamos cuando abramos.':'✓ You’re on the list. We’ll let you know when we open.')+'</div>';
-  }).catch(function(){
-    if(span) span.textContent=lang==='es'?'Reintenta':'Retry'; if(btn)btn.disabled=false;
-  });
+  function done(k){ form.innerHTML='<div class="tdk-ok">'+tdMsg(k,email)+'</div>'; }
+  function retry(){ if(span) span.textContent=lang==='es'?'Reintenta':'Retry'; if(btn)btn.disabled=false; }
+  function planB(){   // la central no respondió: que la solicitud no se pierda
+    return fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({access_key:'d131dcb4-a573-47da-8238-b4cf1ebf4aef',subject:'TourDesk — Nueva solicitud de acceso',from_name:'TourDesk · OffStage',email:email,mensaje:'Nueva solicitud de acceso a TourDesk desde weareoffstage.pro (la central no respondió: invítalo desde el admin)'})
+    }).then(function(r){return r.json();}).then(function(d){ if(!d||!d.success) throw new Error('w3f'); try{ bumpCount(); }catch(e2){} done('waitlist'); }).catch(retry);
+  }
+  fetch('/api/central/signup',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:email,product:'tourdesk',t:Date.now()-TD_T0,hp:hp?hp.value:''})
+  }).then(function(r){
+    return r.json().catch(function(){return {};}).then(function(j){
+      if(r.status===400){ retry(); var n=document.getElementById('td_note'); if(n) n.textContent=tdMsg('bad',email); return; }
+      if(!r.ok||!j.status) return planB();
+      if(j.status==='granted'||j.status==='waitlist'){ try{ bumpCount(); }catch(e2){} }  // el contador solo guarda un número
+      done(j.status);
+    });
+  }).catch(planB);
 }
 
 // MOBILE MENU
