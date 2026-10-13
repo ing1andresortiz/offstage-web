@@ -1,4 +1,4 @@
-import { send, readSession, findTester, artifactRedirect, updateData, requireEnv } from '../../lib/central/core.js';
+import { send, readSession, findTester, artifactRedirect, updateData, requireEnv, canUse } from '../../lib/central/core.js';
 import { readInstallToken } from '../../lib/central/installer.js';
 
 export default async function handler (req, res) {
@@ -14,6 +14,7 @@ export default async function handler (req, res) {
     if (tok) return send(res, 403, { error: 'Acceso revocado.' });
     res.statusCode = 302; res.setHeader('Location', '/central/?login=1'); return res.end();
   }
+  if (!canUse(t, product)) return send(res, 403, { error: 'Tu invitación no incluye este producto.' });
   const r = await artifactRedirect(product, os);
   if (r.error) return send(res, r.status || 500, { error: r.error });
   try {

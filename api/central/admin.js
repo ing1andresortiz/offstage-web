@@ -1,7 +1,10 @@
 import { send, readJson, requireEnv, safeEqual, readData, updateData, normEmail, newCode, getCatalog } from '../../lib/central/core.js';
 import { sendInvite } from '../../lib/central/mail.js';
+import { PRODUCTS } from '../../lib/central/products.js';
 
 const siteOf = (req) => process.env.SITE_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host || 'weareoffstage.pro'}`;
+// lista de productos a los que da acceso una invitación (null = no se indicó → acceso a todo, como antes)
+const cleanProducts = (v) => Array.isArray(v) ? PRODUCTS.map(p => p.id).filter(id => v.includes(id)) : null;
 
 export default async function handler (req, res) {
   try { return await main(req, res); } catch (e) { return send(res, 502, { error: String(e.message || e) }); }
@@ -28,10 +31,12 @@ async function main (req, res) {
     const email = normEmail(body.email);
     if (action === 'add') {
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return send(res, 400, { error: 'Email no válido.' });
+      const products = cleanProducts(body.products);
+      if (products && !products.length) return send(res, 400, { error: 'Elige al menos un producto.' });
       let created = null;
       await updateData('testers', list => {
         if (list.some(t => normEmail(t.email) === email)) return list;
-        created = { email, name: String(body.name || '').slice(0, 80), code: newCode(), active: true, created: new Date().toISOString() };
+        created = { email, name: String(body.name || '').slice(0, 80), code: newCode(), active: true, created: new Date().toISOString(), ...(products ? { products } : {}) };
         return [...list, created];
       }, `data: invite ${email}`);
       if (!created) return send(res, 409, { error: 'Ese email ya está invitado.' });
@@ -56,6 +61,14 @@ async function main (req, res) {
       let mail;
       if (action === 'regen' && body.sendEmail !== false) { mail = await sendInvite(updated, siteOf(req)); if (mail.sent) await markEmailed(email); }
       return send(res, 200, { tester: updated, removed: action === 'remove', mail });
+    }
+    if (action === 'access') {
+      const products = cleanProducts(body.products);
+      if (!products || !products.length) return send(res, 400, { error: 'Deja al menos un producto (para quitarle todo, usa Revocar).' });
+      let updated = null;
+      await updateData('testers', list => list.map(t => normEmail(t.email) === email ? (updated = { ...t, products }) : t), `data: access ${email} ${products.join(',')}`);
+      if (!updated) return send(res, 404, { error: 'No existe ese tester.' });
+      return send(res, 200, { tester: updated });
     }
     if (action === 'send') {
       const { data } = await readData('testers');

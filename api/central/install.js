@@ -1,6 +1,6 @@
 // GET  /api/central/install?t=TOKEN        → the install script (bash for Mac, PowerShell for Windows)
 // POST /api/central/install {product, os}  → { command } for the logged-in tester (token valid 30 min)
-import { send, readJson, readSession, findTester, requireEnv } from '../../lib/central/core.js';
+import { send, readJson, readSession, findTester, requireEnv, canUse } from '../../lib/central/core.js';
 import { PRODUCTS } from '../../lib/central/products.js';
 import { makeInstallToken, readInstallToken, installCommand, macScript, winScript } from '../../lib/central/installer.js';
 
@@ -17,6 +17,7 @@ export default async function handler (req, res) {
     const { product, os } = await readJson(req);
     const p = PRODUCTS.find(x => x.id === product);
     if (!p || !p.platforms[os]) return send(res, 404, { error: 'Producto o sistema no válido.' });
+    if (!canUse(t, product)) return send(res, 403, { error: 'Tu invitación no incluye este producto.' });
     const token = makeInstallToken(s.email, product, os);
     return send(res, 200, { command: installCommand(site, token, os), expiresInMinutes: 30 });
   }
@@ -31,6 +32,7 @@ export default async function handler (req, res) {
   }
   const t = await findTester(tok.email);
   if (!t || t.active === false) { res.writeHead(403, textHeaders); return res.end("echo 'Acceso revocado.'; exit 1"); }
+  if (!canUse(t, tok.product)) { res.writeHead(403, textHeaders); return res.end(tok.os === 'win' ? "Write-Host 'Tu invitación no incluye este producto.'" : "echo 'Tu invitación no incluye este producto.'; exit 1"); }
   const token = url.searchParams.get('t');
   res.writeHead(200, textHeaders);
   return res.end(tok.os === 'win' ? winScript(site, token, tok.product) : macScript(site, token, tok.product));
